@@ -1,26 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.database import SessionLocal
-from app.models import User, Wallet
+from app.api.deps import get_db
 from app.services.auth_facebook import (
     validate_facebook_token,
     get_facebook_user,
 )
 from app.services.auth_service import get_or_create_user_with_wallet
-from app.services.wallet_service import add_coins
 
-router = APIRouter()
+router = APIRouter(prefix="/login", tags=["auth"])
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
-# TODO: Remover endpoint
-@router.post("/login/dev")
+# ⚠️ DEV ONLY – remover em produção
+@router.post("/dev")
 def dev_login(db: Session = Depends(get_db)):
     user, wallet = get_or_create_user_with_wallet(
         db=db,
@@ -35,8 +27,9 @@ def dev_login(db: Session = Depends(get_db)):
         "balance": wallet.balance
     }
 
-@router.post("/login/facebook")
-def login(payload: dict, db: Session = Depends(get_db)):
+
+@router.post("/facebook")
+def facebook_login(payload: dict, db: Session = Depends(get_db)):
     token = payload.get("access_token")
     if not token:
         raise HTTPException(400, "Token ausente")
@@ -57,14 +50,3 @@ def login(payload: dict, db: Session = Depends(get_db)):
         "name": user.name,
         "balance": wallet.balance
     }
-
-
-@router.get("/wallet/{user_id}")
-def get_wallet(user_id: int, db: Session = Depends(get_db)):
-    wallet = db.query(Wallet).filter_by(user_id=user_id).first()
-
-    if not wallet:
-        raise HTTPException(404, "Wallet não encontrada")
-
-    return {"balance": wallet.balance}
-
