@@ -2,14 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
-from app.core.security import create_access_token
-from app.services.auth_facebook import (
-    validate_facebook_token,
-    get_facebook_user,
-)
 from app.services.auth_service import get_or_create_user_with_wallet
+from app.services.auth_facebook import validate_facebook_token, get_facebook_user
+from app.services.auth_google import validate_google_token
+from app.core.security import create_access_token
 
 router = APIRouter(prefix="/login", tags=["auth"])
+
 
 
 # ⚠️ DEV ONLY – remover em produção
@@ -17,50 +16,86 @@ router = APIRouter(prefix="/login", tags=["auth"])
 def dev_login(db: Session = Depends(get_db)):
     user, wallet = get_or_create_user_with_wallet(
         db=db,
-        facebook_id="DEV_USER",
-        name="Dev User"
+        auth_provider="dev",
+        provider_user_id="DEV_USER",
+        full_name="Dev User",
+        email=None,
+        locale="pt-BR"
     )
 
-    access_token = create_access_token(user.id)
+    token = create_access_token({"user_id": user.id})
 
     return {
-        "token": access_token,
+        "access_token": token,
+        "token_type": "bearer",
         "user": {
             "id": user.id,
-            "name": user.name
-        },
-        "wallet": {
+            "name": user.full_name,
             "balance": wallet.balance
         }
     }
 
 
+
 @router.post("/facebook")
 def facebook_login(payload: dict, db: Session = Depends(get_db)):
-    fb_token = payload.get("access_token")
-    if not fb_token:
+    access_token = payload.get("access_token")
+    if not access_token:
         raise HTTPException(400, "Token ausente")
 
-    if not validate_facebook_token(fb_token):
+    if not validate_facebook_token(access_token):
         raise HTTPException(401, "Token inválido")
 
-    fb = get_facebook_user(fb_token)
+    fb = get_facebook_user(access_token)
 
     user, wallet = get_or_create_user_with_wallet(
         db=db,
-        facebook_id=fb["id"],
-        name=fb["name"]
+        auth_provider="facebook",
+        provider_user_id=fb["id"],
+        full_name=fb["name"],
+        email=fb.get("email"),
+        picture_url=fb.get("picture", {}).get("data", {}).get("url"),
+        locale=None
     )
 
-    access_token = create_access_token(user.id)
+    token = create_access_token({"user_id": user.id})
 
     return {
-        "token": access_token,
+        "access_token": token,
+        "token_type": "bearer",
         "user": {
             "id": user.id,
-            "name": user.name
-        },
-        "wallet": {
+            "name": user.full_name,
+            "balance": wallet.balance
+        }
+    }
+
+@router.post("/google")
+def google_login(payload: dict, db: Session = Depends(get_db)):
+    id_token = payload.get("id_token")
+    if not id_token:
+        raise HTTPException(400, "Token ausente")
+
+    google_user = validate_google_token(id_token)
+
+    user, wallet = get_or_create_user_with_wallet(
+        db=db,
+        auth_provider="google",
+        provider_user_id=google_user["sub"],
+        full_name=google_user["name"],
+        email=google_user.get("email"),
+        picture_url=google_user.get("picture"),
+        locale=google_user.get("locale")
+    )
+
+    token = create_access_token({"user_id": user.id})
+
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "name": user.full_name,
             "balance": wallet.balance
         }
     }

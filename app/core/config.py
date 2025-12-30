@@ -1,5 +1,7 @@
 from pydantic_settings import BaseSettings
 
+from app.services.auth_google import GOOGLE_CLIENT_ID
+
 class Settings(BaseSettings):
     ENV: str = "dev"
 
@@ -13,7 +15,10 @@ class Settings(BaseSettings):
     FB_APP_ID: str
     FB_APP_SECRET: str
 
+    GOOGLE_CLIENT_ID: str
+
     class Config:
         env_file = ".env"
+        extra = "forbid"
 
 settings = Settings()

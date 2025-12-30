@@ -5,6 +5,18 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    facebook_id = Column(String, unique=True, index=True, nullable=False)
-    name = Column(String, nullable=False)   # ✅ ADICIONE ISSO
-    coins = Column(Integer, default=100)
+
+    # Auth
+    auth_provider = Column(String, nullable=False, index=True)  
+    provider_user_id = Column(String, nullable=False, index=True)
+
+    # Profile
+    email = Column(String, nullable=True, index=True)
+    full_name = Column(String, nullable=False)
+    locale = Column(String, nullable=True)
+    picture_url = Column(String, nullable=True)
+
+    __table_args__ = (
+        # garante unicidade por provider
+        {"sqlite_autoincrement": True},
+    )

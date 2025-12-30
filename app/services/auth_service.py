@@ -6,22 +6,33 @@ INITIAL_BALANCE = 100
 
 def get_or_create_user_with_wallet(
     db: Session,
-    facebook_id: str,
-    name: str
+    auth_provider: str,
+    provider_user_id: str,
+    full_name: str,
+    email: str | None = None,
+    locale: str | None = None,
+    picture_url: str | None = None,
 ):
     user = (
         db.query(User)
-        .filter(User.facebook_id == facebook_id)
+        .filter(
+            User.auth_provider == auth_provider,
+            User.provider_user_id == provider_user_id
+        )
         .first()
     )
 
     if not user:
         user = User(
-            facebook_id=facebook_id,
-            name=name
+            auth_provider=auth_provider,
+            provider_user_id=provider_user_id,
+            full_name=full_name,
+            email=email,
+            locale=locale,
+            picture_url=picture_url
         )
         db.add(user)
-        db.flush()  # garante user.id
+        db.flush()
 
         wallet = Wallet(
             user_id=user.id,
@@ -36,5 +47,4 @@ def get_or_create_user_with_wallet(
         )
 
     db.commit()
-
     return user, wallet
