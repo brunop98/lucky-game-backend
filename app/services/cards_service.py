@@ -1,5 +1,5 @@
 import random
-def generate_new_game_cards(user, rare_item, total_cards, selectable_cards):
+def generate_new_game_cards(user, rare_item, total_cards):
 
     cards = []
 
