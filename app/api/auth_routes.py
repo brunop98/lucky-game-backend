@@ -2,13 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
-from app.services.auth_service import get_or_create_user_with_wallet
-from app.services.auth_facebook import validate_facebook_token, get_facebook_user
-from app.services.auth_google import validate_google_token
 from app.core.security import create_access_token
+from app.services.auth_facebook import get_facebook_user, validate_facebook_token
+from app.services.auth_google import validate_google_token
+from app.services.auth_service import get_or_create_user_with_wallet
 
 router = APIRouter(prefix="/login", tags=["auth"])
-
 
 
 # ⚠️ DEV ONLY – remover em produção
@@ -20,21 +19,16 @@ def dev_login(db: Session = Depends(get_db)):
         provider_user_id="DEV_USER",
         full_name="Dev User",
         email=None,
-        locale="pt-BR"
+        locale="pt-BR",
     )
 
-    token = create_access_token({"user_id": user.id})
+    token = create_access_token(user.id)
 
     return {
         "access_token": token,
         "token_type": "bearer",
-        "user": {
-            "id": user.id,
-            "name": user.full_name,
-            "balance": wallet.balance
-        }
+        "user": {"id": user.id, "name": user.full_name, "balance": wallet.balance},
     }
-
 
 
 @router.post("/facebook")
@@ -55,20 +49,17 @@ def facebook_login(payload: dict, db: Session = Depends(get_db)):
         full_name=fb["name"],
         email=fb.get("email"),
         picture_url=fb.get("picture", {}).get("data", {}).get("url"),
-        locale=None
+        locale=None,
     )
 
-    token = create_access_token({"user_id": user.id})
+    token = create_access_token(user.id)
 
     return {
         "access_token": token,
         "token_type": "bearer",
-        "user": {
-            "id": user.id,
-            "name": user.full_name,
-            "balance": wallet.balance
-        }
+        "user": {"id": user.id, "name": user.full_name, "balance": wallet.balance},
     }
+
 
 @router.post("/google")
 def google_login(payload: dict, db: Session = Depends(get_db)):
@@ -85,17 +76,13 @@ def google_login(payload: dict, db: Session = Depends(get_db)):
         full_name=google_user["name"],
         email=google_user.get("email"),
         picture_url=google_user.get("picture"),
-        locale=google_user.get("locale")
+        locale=google_user.get("locale"),
     )
 
-    token = create_access_token({"user_id": user.id})
+    token = create_access_token(user.id)
 
     return {
         "access_token": token,
         "token_type": "bearer",
-        "user": {
-            "id": user.id,
-            "name": user.full_name,
-            "balance": wallet.balance
-        }
+        "user": {"id": user.id, "name": user.full_name, "balance": wallet.balance},
     }

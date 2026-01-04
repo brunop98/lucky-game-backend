@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, DeclarativeBase 
 from app.core.config import settings
 
 def get_database_url():
@@ -17,3 +17,5 @@ engine = create_engine(
 )
 
 SessionLocal = sessionmaker(bind=engine)
+
+
