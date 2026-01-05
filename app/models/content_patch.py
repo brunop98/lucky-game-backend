@@ -1,4 +1,5 @@
-from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy import Boolean, Column, Integer, String, DateTime
+from sqlalchemy.sql import func
 from app.models.base import Base
 
 class ContentPatch(Base):
@@ -18,3 +19,7 @@ class ContentPatch(Base):
     checksum = Column(String, nullable=True) 
 
     active = Column(Boolean, default=False)
+
+    # timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())

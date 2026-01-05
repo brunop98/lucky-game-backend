@@ -10,4 +10,7 @@ class WalletTransaction(Base):
     type = Column(String)  # reward | purchase | spend
     amount = Column(Integer)
     balance_after = Column(Integer)
+    
+    # timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())

@@ -11,4 +11,7 @@ class Purchase(Base):
     product_id = Column(String)
     receipt_id = Column(String, unique=True)
     amount = Column(Integer)
+    
+    # timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
