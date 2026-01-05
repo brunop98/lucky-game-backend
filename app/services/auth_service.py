@@ -1,10 +1,13 @@
 from sqlalchemy.orm import Session
+
 from app.models.user import User
 from app.models.wallet import Wallet
+from app.services.village_service import next_village
 
 INITIAL_BALANCE = 100
 
-def get_or_create_user_with_wallet(
+
+def get_or_create_user(
     db: Session,
     auth_provider: str,
     provider_user_id: str,
@@ -15,10 +18,7 @@ def get_or_create_user_with_wallet(
 ):
     user = (
         db.query(User)
-        .filter(
-            User.auth_provider == auth_provider,
-            User.provider_user_id == provider_user_id
-        )
+        .filter(User.auth_provider == auth_provider, User.provider_user_id == provider_user_id)
         .first()
     )
 
@@ -29,21 +29,17 @@ def get_or_create_user_with_wallet(
             full_name=full_name,
             email=email,
             locale=locale,
-            picture_url=picture_url
+            picture_url=picture_url,
         )
         db.add(user)
         db.flush()
 
-        wallet = Wallet(
-            user_id=user.id
-        )
+        wallet = Wallet(user_id=user.id)
         db.add(wallet)
+
+        next_village(db, village_id=1, user_id=user.id)
     else:
-        wallet = (
-            db.query(Wallet)
-            .filter(Wallet.user_id == user.id)
-            .first()
-        )
+        wallet = db.query(Wallet).filter(Wallet.user_id == user.id).first()
 
     db.commit()
     return user, wallet

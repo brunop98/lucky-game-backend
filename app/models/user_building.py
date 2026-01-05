@@ -26,3 +26,8 @@ class UserBuilding(Base):
         "User",
         back_populates="user_buildings"
     )
+
+    building = relationship(
+        "Buildings",
+        back_populates="user_buildings"
+    )

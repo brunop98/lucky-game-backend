@@ -5,7 +5,7 @@ from app.api.deps import get_db
 from app.core.security import create_access_token
 from app.services.auth_facebook import get_facebook_user, validate_facebook_token
 from app.services.auth_google import validate_google_token
-from app.services.auth_service import get_or_create_user_with_wallet
+from app.services.auth_service import get_or_create_user
 
 router = APIRouter(prefix="/login", tags=["auth"])
 
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/login", tags=["auth"])
 # ⚠️ DEV ONLY – remover em produção
 @router.post("/dev")
 def dev_login(db: Session = Depends(get_db)):
-    user, wallet = get_or_create_user_with_wallet(
+    user, wallet = get_or_create_user(
         db=db,
         auth_provider="dev",
         provider_user_id="DEV_USER",
@@ -42,7 +42,7 @@ def facebook_login(payload: dict, db: Session = Depends(get_db)):
 
     fb = get_facebook_user(access_token)
 
-    user, wallet = get_or_create_user_with_wallet(
+    user, wallet = get_or_create_user(
         db=db,
         auth_provider="facebook",
         provider_user_id=fb["id"],
@@ -57,7 +57,10 @@ def facebook_login(payload: dict, db: Session = Depends(get_db)):
     return {
         "access_token": token,
         "token_type": "bearer",
-        "user": {"id": user.id, "name": user.full_name, },
+        "user": {
+            "id": user.id,
+            "name": user.full_name,
+        },
     }
 
 
@@ -69,7 +72,7 @@ def google_login(payload: dict, db: Session = Depends(get_db)):
 
     google_user = validate_google_token(id_token)
 
-    user, wallet = get_or_create_user_with_wallet(
+    user, wallet = get_or_create_user(
         db=db,
         auth_provider="google",
         provider_user_id=google_user["sub"],
@@ -84,5 +87,8 @@ def google_login(payload: dict, db: Session = Depends(get_db)):
     return {
         "access_token": token,
         "token_type": "bearer",
-        "user": {"id": user.id, "name": user.full_name, },
+        "user": {
+            "id": user.id,
+            "name": user.full_name,
+        },
     }

@@ -2,6 +2,8 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from app.models.villages import Villages
 from app.models.buildings import Buildings
+from app.models.user_building import UserBuilding
+
 
 def get_building_stage_cost(
     db: Session,
@@ -33,3 +35,14 @@ def get_building_stage_cost(
     )
 
     return cost
+def next_village(db: Session, village_id: int, user_id: int):
+    # for each building in the village, create a UserBuilding 
+    buildings = db.query(Buildings).filter(Buildings.village_id == village_id).all()
+    for building in buildings:
+        user_building = UserBuilding(
+            user_id=user_id,
+            building_id=building.id
+        )
+        db.add(user_building)
+    db.commit()
+    return
