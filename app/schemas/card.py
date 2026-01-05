@@ -7,8 +7,6 @@ class CardReward(BaseModel):
     buff: str | None = None # tipo de buff
     buff_duration_sec: int | None = None # duração do buff em segundos
 
-
-
     item_slug: str | None = None # referencia a tabela de itens
 
 class Card(BaseModel):
