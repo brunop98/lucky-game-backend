@@ -4,7 +4,7 @@ from app.models.user import User
 from app.models.wallet import Wallet
 from app.services.village_service import next_village
 
-INITIAL_BALANCE = 100
+INITIAL_BALANCE = 1500
 
 
 def get_or_create_user(

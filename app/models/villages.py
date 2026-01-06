@@ -9,7 +9,6 @@ class Villages(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    order = Column(Integer, nullable=False, unique=True)
     
     building_cost_modifier = Column(Float, nullable=False, default=1.0)
     
