@@ -1,9 +1,8 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
-from app.core.database import engine
+from app.seeds.run import run_seeds_if_enabled
 from app.core.version_middleware import VersionMiddleware
-from app.models.base import Base
 from app.api.router import api_router
 
 
@@ -11,14 +10,11 @@ from app.api.router import api_router
 async def lifespan(app: FastAPI):
     # Startup
     try:
-        Base.metadata.create_all(bind=engine)
+        run_seeds_if_enabled()
     except Exception as e:
-        print("DB init failed:", e)
+        print("Seed execution failed:", e)
 
     yield
-
-    # Shutdown (se precisar)
-    # engine.dispose()
 
 
 app = FastAPI(
