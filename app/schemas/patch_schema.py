@@ -26,14 +26,3 @@ class PatchLatestOut(BaseModel):
         return str(v)
     
 
-
-# # class PatchOut(BaseModel):
-# #     appVersionMin: str
-# #     appVersionMax: str
-
-# #     contentVersion: str
-# #     mandatory: bool
-
-# #     download: PatchDownload
-# #     sizeMb: int
-# #     checksum: str | None = None
