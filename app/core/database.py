@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
 
 engine = create_engine(
-    settings.DB_URL,
+    settings.database_url,
     pool_pre_ping=True,
     pool_size=5,
     max_overflow=0,
