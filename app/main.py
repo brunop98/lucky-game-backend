@@ -1,12 +1,12 @@
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
-from app.core.version_middleware import VersionMiddleware
-from app.api.router import api_router
-from app.seeds.run import run_seeds_if_enabled
+from fastapi import FastAPI
 
+from app.api.router import api_router
+from app.core.database import engine  # ou onde o engine está hoje
+from app.core.version_middleware import VersionMiddleware
 from app.models.base import Base
-from app.core.database import engine   # ou onde o engine está hoje
+from app.seeds.run import run_seeds_if_enabled
 
 
 @asynccontextmanager

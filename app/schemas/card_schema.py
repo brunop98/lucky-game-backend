@@ -1,20 +1,40 @@
-from pydantic import BaseModel
+from typing import Literal, Union
+from pydantic import BaseModel, NonNegativeFloat, NonNegativeInt
+
+
+class CardCoinReward(BaseModel):
+    ammount: NonNegativeInt
+
+
+class CardBoostReward(BaseModel):
+    multiplier: NonNegativeFloat
+    duration_seconds: NonNegativeInt
+    image_url: str
+
+
+class CardItemReward(BaseModel):
+    item_id: NonNegativeInt
+    rarity: NonNegativeFloat
+    image_url: str
+    # TODO: quando a tabela de itens for criada, definir esse schema
 
 
 class CardReward(BaseModel):
-    type: str
-    amount: int | None = None  # quantidade de grana
-
-    buff: str | None = None  # tipo de buff
-    buff_duration_sec: int | None = None  # duração do buff em segundos
-
-    item_id: int | None = None  # referencia a tabela de itens
-
-
-class Card(BaseModel):
-    id_slug: str  # coin_low, coin_medium, jackpot, boost_xp_small, rare_item, common_item...
-    category: str
+    type: Literal["coin", "buff", "item"]
+    reward: Union[CardCoinReward, CardBoostReward, CardItemReward]
     image_url: str
-    rarity: float
-    draw_weight: float
+
+
+class CardOut(BaseModel):
+    id_slug: Literal[
+        "coin_low",
+        "coin_medium",
+        "coin_jackpot",
+        "boost_low",
+        "boost_medium",
+        "boost_jackpot",
+        "rare_item",
+        "common_item",
+    ]
+    draw_weight_percent: NonNegativeFloat  
     reward: CardReward

@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_db
 from app.core.auth import get_current_user
 from app.models.user import User
+from app.schemas.card_schema import CardOut
 from app.services.cards_service import generate_new_game_cards
 
 router = APIRouter(prefix="/cards", tags=["cards"])
@@ -26,7 +27,7 @@ def new_game(payload: dict, db: Session = Depends(get_db), current_user: User = 
     return new_game
 
 @router.post("/reveal-card")
-def reveal_card(payload: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def reveal_card(payload: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> CardOut:
     card = payload.get("revealed_card")
 
     if not card:

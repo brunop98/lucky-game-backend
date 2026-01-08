@@ -5,9 +5,11 @@ from app.models.base import Base
 
 class Wallet(Base):
     __tablename__ = "wallets"
-
+# TODO: mudar para ulong aqui e em todos os models e schemas
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), unique=True)
+
+    # TODO: colocar xp aqui
     coins = Column(Integer, default=0)
     gems = Column(Integer, default=0)
     energy = Column(Integer, default=0)
