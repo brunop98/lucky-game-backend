@@ -1,15 +1,28 @@
 import random
-def generate_new_game_cards(user, rare_item, total_cards):
+import uuid
 
-    cards = []
+# PROBABILITY
+def get_rare_item_probability(user, goal_card):
+    # TODO
+    return 0.5
 
-    if rare_item:
-        cards.append(rare_item)
-        total_cards -= 1
-    
-    for _ in range(total_cards):
-        cards.append(f"common_item_{random.randint(1, 1000)}")
+def get_jackpot_probability(user, goal_card):
+    # TODO
+    return 0.5
 
-    random.shuffle(cards)
+# HASH
 
-    return cards
+def search_game_hash(user, goal_card):
+    # TODO
+    return None
+
+def create_game_hash(user, goal_card):
+    game_uuid  = str(uuid.uuid4())
+    # TODO registrar no bd
+    return game_uuid 
+
+def get_game_hash(user, goal_card):
+    hash = search_game_hash(user, goal_card)
+    if not hash:
+        hash = create_game_hash(user, goal_card)
+    return hash
