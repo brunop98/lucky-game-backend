@@ -1,11 +1,11 @@
-from os import name
-from sqlalchemy import Column, Float, Integer, String, ForeignKey, DateTime
-from sqlalchemy.sql import func
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
 from app.models.base import Base
 
 
-class Buildings(Base):
+class Building(Base):
     __tablename__ = "buildings"
 
     id = Column(Integer, primary_key=True)
@@ -23,16 +23,10 @@ class Buildings(Base):
     #     × (cost_multiplier ^ (stage - 1))
     #     × village_cost_modifier
     # )
-    
+
     # timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    village = relationship(
-        "Villages",
-        back_populates="buildings"
-    )
-    user_buildings = relationship(
-        "UserBuilding",
-        back_populates="building"
-    )
+    village = relationship("Villages", back_populates="buildings")
+    user_buildings = relationship("UserBuilding", back_populates="buildings")

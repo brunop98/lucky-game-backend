@@ -47,5 +47,4 @@ def get_or_create_user(
     else:
         wallet = db.query(Wallet).filter(Wallet.user_id == user.id).first()
 
-    db.commit()
     return user, wallet

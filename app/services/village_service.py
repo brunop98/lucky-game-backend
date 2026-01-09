@@ -1,13 +1,13 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.models.buildings import Buildings
+from app.models.buildings import Building
 from app.models.user import User
 from app.models.user_building import UserBuilding
 from app.models.villages import Villages
 
 
-def get_building_stage_cost(db: Session, village: Villages, building: Buildings, stage: int) -> int:
+def get_building_stage_cost(db: Session, village: Villages, building: Building, stage: int) -> int:
 
     if not building:
         raise HTTPException(status_code=404, detail="Building not found in the specified village")
@@ -48,21 +48,21 @@ def get_actual_village(db: Session, user: User) -> dict:
 
     rows = (
         db.query(
-            Buildings.id,
-            Buildings.name,
-            Buildings.building_stages,
-            Buildings.cost_curve,
-            Buildings.base_cost,
-            Buildings.cost_multiplier,
-            Buildings.created_at,
-            Buildings.updated_at,
+            Building.id,
+            Building.name,
+            Building.building_stages,
+            Building.cost_curve,
+            Building.base_cost,
+            Building.cost_multiplier,
+            Building.created_at,
+            Building.updated_at,
             UserBuilding.id.label("user_building_id"),
             UserBuilding.current_stage.label("user_building_current_stage"),
             UserBuilding.created_at.label("user_building_created_at"),
             UserBuilding.updated_at.label("user_building_updated_at"),
         )
-        .join(Buildings)
-        .filter(Buildings.village_id == village.id, UserBuilding.user_id == user.id)
+        .join(Building)
+        .filter(Building.village_id == village.id, UserBuilding.user_id == user.id)
         .all()
     )
 
@@ -123,7 +123,7 @@ def get_actual_village(db: Session, user: User) -> dict:
 
 
 def next_village(db: Session, village_id: int, user_id: int):
-    buildings = db.query(Buildings).filter(Buildings.village_id == village_id).all()
+    buildings = db.query(Building).filter(Building.village_id == village_id).all()
 
     for building in buildings:
         db.add(UserBuilding(user_id=user_id, building_id=building.id))

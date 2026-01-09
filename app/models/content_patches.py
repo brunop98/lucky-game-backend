@@ -1,8 +1,10 @@
-from sqlalchemy import Boolean, Column, Integer, String, DateTime
+from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from sqlalchemy.sql import func
+
 from app.models.base import Base
 
-class ContentPatches(Base):
+
+class ContentPatch(Base):
     __tablename__ = "content_patches"
 
     id = Column(Integer, primary_key=True)
@@ -16,12 +18,10 @@ class ContentPatches(Base):
 
     size_mb = Column(Integer, nullable=False)
     mandatory = Column(Boolean, default=False)
-    checksum = Column(String, nullable=True) 
+    checksum = Column(String, nullable=True)
 
     active = Column(Boolean, default=False)
 
     # timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-
-

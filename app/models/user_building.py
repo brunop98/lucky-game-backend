@@ -1,7 +1,9 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
-from sqlalchemy.sql import func
+from sqlalchemy import Column, DateTime, ForeignKey, Integer
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
 from app.models.base import Base
+
 
 class UserBuilding(Base):
     __tablename__ = "user_buildings"
@@ -22,12 +24,6 @@ class UserBuilding(Base):
         {"sqlite_autoincrement": True},
     )
 
-    user = relationship(
-        "User",
-        back_populates="user_buildings"
-    )
+    user = relationship("User", back_populates="user_buildings")
 
-    building = relationship(
-        "Buildings",
-        back_populates="user_buildings"
-    )
+    building = relationship("Building", back_populates="user_buildings")

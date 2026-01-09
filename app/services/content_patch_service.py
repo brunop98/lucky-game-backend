@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
-from app.models.content_patches import ContentPatches
+
+from app.models.content_patches import ContentPatch
 
 
 def get_active_patch(db: Session) -> dict | None:
@@ -8,11 +9,7 @@ def get_active_patch(db: Session) -> dict | None:
     Retorna None se não houver patch ativo.
     """
 
-    patch = (
-        db.query(ContentPatches)
-        .filter(ContentPatches.active == True)
-        .first()
-    )
+    patch = db.query(ContentPatch).filter(ContentPatch.active == True).first()
 
     if not patch:
         return None

@@ -16,6 +16,7 @@ def new_game(
     goal_card: Optional[str] = Query(None), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
     # TODO: logica para gerar cartas baseado no usuario, historico, etc.
+    # TODO evitar ganhar item repetido
       # goal_card eh o item_slug por enquanto, mas pode ser adicionado mais coisas
     print('goal_card')
     print(goal_card)
@@ -46,4 +47,5 @@ def reveal_card(
         raise HTTPException(400, "Card is required")
 
     # TODO: add to inventory/wallet
+    # TODO evitar ganhar item repetido
     return {"revealed_card": card}

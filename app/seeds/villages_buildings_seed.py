@@ -1,5 +1,5 @@
 from app.core.database import SessionLocal
-from app.models.buildings import Buildings
+from app.models.buildings import Building
 from app.models.villages import Villages
 
 
@@ -73,7 +73,7 @@ def seed_villages_and_buildings(db):
             # =========================
             # VILA 1 — INICIAL
             # =========================
-            Buildings(
+            Building(
                 id=1,
                 village_id=1,
                 name="Casa Simples",
@@ -81,7 +81,7 @@ def seed_villages_and_buildings(db):
                 base_cost=300,
                 cost_multiplier=1.25,
             ),
-            Buildings(
+            Building(
                 id=2,
                 village_id=1,
                 name="Poço",
@@ -89,7 +89,7 @@ def seed_villages_and_buildings(db):
                 base_cost=450,
                 cost_multiplier=1.28,
             ),
-            Buildings(
+            Building(
                 id=3,
                 village_id=1,
                 name="Celeiro",
@@ -97,7 +97,7 @@ def seed_villages_and_buildings(db):
                 base_cost=650,
                 cost_multiplier=1.30,
             ),
-            Buildings(
+            Building(
                 id=4,
                 village_id=1,
                 name="Prefeitura",
@@ -108,7 +108,7 @@ def seed_villages_and_buildings(db):
             # =========================
             # VILA 2 — MERCANTIL
             # =========================
-            Buildings(
+            Building(
                 id=5,
                 village_id=2,
                 name="Mercado",
@@ -116,7 +116,7 @@ def seed_villages_and_buildings(db):
                 base_cost=900,
                 cost_multiplier=1.30,
             ),
-            Buildings(
+            Building(
                 id=6,
                 village_id=2,
                 name="Moinho",
@@ -124,7 +124,7 @@ def seed_villages_and_buildings(db):
                 base_cost=1200,
                 cost_multiplier=1.32,
             ),
-            Buildings(
+            Building(
                 id=7,
                 village_id=2,
                 name="Oficina",
@@ -132,7 +132,7 @@ def seed_villages_and_buildings(db):
                 base_cost=1500,
                 cost_multiplier=1.35,
             ),
-            Buildings(
+            Building(
                 id=8,
                 village_id=2,
                 name="Banco Mercantil",
@@ -143,7 +143,7 @@ def seed_villages_and_buildings(db):
             # =========================
             # VILA 3 — REAL
             # =========================
-            Buildings(
+            Building(
                 id=9,
                 village_id=3,
                 name="Guarda Real",
@@ -151,7 +151,7 @@ def seed_villages_and_buildings(db):
                 base_cost=1800,
                 cost_multiplier=1.35,
             ),
-            Buildings(
+            Building(
                 id=10,
                 village_id=3,
                 name="Jardins Reais",
@@ -159,7 +159,7 @@ def seed_villages_and_buildings(db):
                 base_cost=2400,
                 cost_multiplier=1.38,
             ),
-            Buildings(
+            Building(
                 id=11,
                 village_id=3,
                 name="Salão do Trono",
@@ -167,7 +167,7 @@ def seed_villages_and_buildings(db):
                 base_cost=3200,
                 cost_multiplier=1.42,
             ),
-            Buildings(
+            Building(
                 id=12,
                 village_id=3,
                 name="Castelo",
@@ -178,7 +178,7 @@ def seed_villages_and_buildings(db):
             # =========================
             # VILA 4 — IMPERIAL
             # =========================
-            Buildings(
+            Building(
                 id=13,
                 village_id=4,
                 name="Quartel Imperial",
@@ -186,7 +186,7 @@ def seed_villages_and_buildings(db):
                 base_cost=3000,
                 cost_multiplier=1.38,
             ),
-            Buildings(
+            Building(
                 id=14,
                 village_id=4,
                 name="Aqueduto",
@@ -194,7 +194,7 @@ def seed_villages_and_buildings(db):
                 base_cost=3600,
                 cost_multiplier=1.4,
             ),
-            Buildings(
+            Building(
                 id=15,
                 village_id=4,
                 name="Câmara Imperial",
@@ -202,7 +202,7 @@ def seed_villages_and_buildings(db):
                 base_cost=4800,
                 cost_multiplier=1.42,
             ),
-            Buildings(
+            Building(
                 id=16,
                 village_id=4,
                 name="Palácio Imperial",
@@ -213,7 +213,7 @@ def seed_villages_and_buildings(db):
             # =========================
             # VILA 5 — LENDÁRIA
             # =========================
-            Buildings(
+            Building(
                 id=17,
                 village_id=5,
                 name="Santuário Antigo",
@@ -221,7 +221,7 @@ def seed_villages_and_buildings(db):
                 base_cost=4500,
                 cost_multiplier=1.45,
             ),
-            Buildings(
+            Building(
                 id=18,
                 village_id=5,
                 name="Biblioteca Arcana",
@@ -229,7 +229,7 @@ def seed_villages_and_buildings(db):
                 base_cost=5500,
                 cost_multiplier=1.48,
             ),
-            Buildings(
+            Building(
                 id=19,
                 village_id=5,
                 name="Forja Lendária",
@@ -237,7 +237,7 @@ def seed_villages_and_buildings(db):
                 base_cost=7000,
                 cost_multiplier=1.5,
             ),
-            Buildings(
+            Building(
                 id=20,
                 village_id=5,
                 name="Trono dos Deuses",
@@ -250,7 +250,7 @@ def seed_villages_and_buildings(db):
         db.bulk_save_objects(buildings)
         db.commit()
 
-        print("✅ Villages and Buildings seeded successfully")
+        print("✅ Villages and Building seeded successfully")
 
     except Exception:
         db.rollback()
@@ -258,4 +258,3 @@ def seed_villages_and_buildings(db):
 
     finally:
         db.close()
-
