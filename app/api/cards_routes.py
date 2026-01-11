@@ -8,11 +8,20 @@ from app.models.user import User
 from app.schemas.card_schema import CardOut
 from app.services.cards_service import (
     get_rare_item_probability,
-    get_game_hash,
+    get_game_uuid,
     get_jackpot_probability,
+    cancel_game_uuid,
 )
 
 router = APIRouter(prefix="/cards", tags=["cards"])
+
+
+@router.delete("/cancel/{game_uuid}")
+def cancel_game(
+    game_uuid: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+):
+    cancel_game_uuid(db, current_user, game_uuid)
+    return {"message": "Game canceled", "game_uuid": game_uuid}
 
 
 @router.get("/new-game")
@@ -24,15 +33,16 @@ def new_game(
     current_user: User = Depends(get_current_user),
 ):
     # TODO: logica para gerar cartas baseado no usuario, historico, etc.
-    # TODO evitar ganhar item repetido
+    # TODO impedir ganhar item repetido
+    # TODO TESTAR MUITO
 
     new_game = {
-        "hash": get_game_hash(current_user, goal_card),
+        "game_uuid": get_game_uuid(db, current_user, goal_card or None),
         "rare_item_probability": (
-            0 if not goal_card else get_rare_item_probability(current_user, goal_card)
+            0 if not goal_card else get_rare_item_probability(db, current_user, goal_card)
         ),
         "jackpot_probability": (
-            0 if goal_card else get_jackpot_probability(current_user, goal_card)
+            0 if goal_card else get_jackpot_probability(db, current_user, goal_card)
         ),
     }
 
@@ -49,5 +59,5 @@ def reveal_card(
         raise HTTPException(400, "Card is required")
 
     # TODO: add to inventory/wallet
-    # TODO evitar ganhar item repetido
+    # TODO impedir de ganhar item repetido
     return {"revealed_card": card}

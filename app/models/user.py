@@ -3,13 +3,14 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.models.base import Base
 
+
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
 
     # Auth
-    auth_provider = Column(String, nullable=False, index=True)  
+    auth_provider = Column(String, nullable=False, index=True)
     provider_user_id = Column(String, nullable=False, index=True)
 
     # Profile
@@ -18,7 +19,7 @@ class User(Base):
     locale = Column(String, nullable=True)
     picture_url = Column(String, nullable=True)
 
-    #progression
+    # progression
     rank = Column(Integer, nullable=False, default=1)
     actual_village = Column(Integer, nullable=False, default=1)
 
@@ -26,16 +27,11 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
+    user_building = relationship("UserBuilding", back_populates="user")
 
-    user_building = relationship(
-        "UserBuilding",
-        back_populates="user"
-    )
+    user_item = relationship("UserItem", back_populates="user")
 
-    user_item = relationship(
-        "UserItem",
-        back_populates="user"
-    )
+    card_hash = relationship("CardHash", back_populates="user")
 
     wallet = relationship("Wallet", back_populates="user", uselist=False, lazy="joined")
 
@@ -43,4 +39,3 @@ class User(Base):
         # garante unicidade por provider
         {"sqlite_autoincrement": True},
     )
-
