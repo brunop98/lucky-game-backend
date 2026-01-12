@@ -16,4 +16,5 @@ def user_has_item(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return user_has_item_service(db, current_user, item_slug)
+    return {
+        "hasItem": user_has_item_service(db, current_user, item_slug)}
