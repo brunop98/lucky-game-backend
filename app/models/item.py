@@ -1,5 +1,5 @@
 from pyexpat import model
-from sqlalchemy import CheckConstraint, Column, Float, Integer, ForeignKey, DateTime, String
+from sqlalchemy import Boolean, CheckConstraint, Column, Float, Integer, ForeignKey, DateTime, String
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.models.base import Base
@@ -19,7 +19,10 @@ class Item(Base):
     # description = Column(String, nullable=False) #TODO consultar os macacos sobre existencia desse campo e estabelecer limites (null, max chars)
     rarity = Column(Float, nullable=False)
 
-    # TODO price  em coins/gems/userLevel/newVillage/envento
+    # TODO price  em coins/gems/userLevel/newVillage/envento 
+    # 
+    drawn_available = Column(Boolean, nullable=False, default=True)
+           
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
