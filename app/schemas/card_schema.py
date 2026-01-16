@@ -1,5 +1,5 @@
 from typing import Literal, Union
-from pydantic import BaseModel, NonNegativeFloat, NonNegativeInt
+from pydantic import UUID4, BaseModel, NonNegativeFloat, NonNegativeInt
 
 
 class CardCoinReward(BaseModel):
@@ -38,3 +38,6 @@ class CardOut(BaseModel):
     ]
     draw_weight_percent: NonNegativeFloat  
     reward: CardReward
+
+class CardRevealIn(BaseModel):
+    game_hash: UUID4 | None = None

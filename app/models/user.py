@@ -23,6 +23,10 @@ class User(Base):
     rank = Column(Integer, nullable=False, default=1)
     actual_village = Column(Integer, nullable=False, default=1)
 
+    #cards
+    rare_item_miss_count = Column(Integer, nullable=False, default=0)
+    last_jackpot_at = Column(DateTime(timezone=True), nullable=True)
+
     # timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

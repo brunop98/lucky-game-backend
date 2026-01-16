@@ -4,14 +4,19 @@ from sqlalchemy.orm import Session
 
 from app.core.deps import get_db
 from app.core.auth import get_current_user
+from app.models import CardHash
+from app.models.item import Item
 from app.models.user import User
-from app.schemas.card_schema import CardOut
+from app.schemas.card_schema import CardOut, CardRevealIn
 from app.services.cards_service import (
-    get_rare_item_probability,
-    get_game_uuid,
-    get_jackpot_probability,
+    create_or_get_game,
+    get_coins_reward,
+    get_game_data,
+   
+    
     cancel_game_uuid,
 )
+from app.services.items_service import user_has_item
 
 router = APIRouter(prefix="/cards", tags=["cards"])
 
@@ -26,38 +31,50 @@ def cancel_game(
 
 @router.get("/new-game")
 def new_game(
-    goal_card: Optional[str] = Query(
-        None
-    ),  # goal_card eh o item_slug por enquanto, mas pode ser adicionado mais coisas
+    goal_card: Optional[str] = Query(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # TODO: logica para gerar cartas baseado no usuario, historico, etc.
-    # TODO impedir ganhar item repetido
-    # TODO TESTAR MUITO
+    game = create_or_get_game(
+        db=db,
+        user=current_user,
+        goal_card=goal_card,
+    )
 
-    new_game = {
-        "game_uuid": get_game_uuid(db, current_user, goal_card or None),
-        "rare_item_probability": (
-            0 if not goal_card else get_rare_item_probability(db, current_user, goal_card)
-        ),
-        "jackpot_probability": (
-            0 if goal_card else get_jackpot_probability(db, current_user, goal_card)
-        ),
+    return {
+        "game_uuid": game.id,
+        "reward_focus": game.reward_focus,
+        "reward_probability": game.reward_probability,
+        "item_slug": game.item_slug,
     }
 
-    return new_game
+
 
 
 @router.post("/reveal-card")
 def reveal_card(
-    payload: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
-) -> CardOut:
-    card = payload.get("revealed_card")
+    payload: CardRevealIn,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) :
+    game_hash = payload.game_hash
+    
+    if not game_hash:
+        raise HTTPException(400, "Game hash is required")
+    
+    card_hash = db.query(CardHash).filter(CardHash.id == game_hash).first()
 
-    if not card:
-        raise HTTPException(400, "Card is required")
+    if not card_hash:
+        raise HTTPException(404, "Game hash not found")
+    
 
-    # TODO: add to inventory/wallet
-    # TODO impedir de ganhar item repetido
-    return {"revealed_card": card}
+    game_data = get_game_data(db, current_user, game_hash)
+
+    if game_data["reward_focus"] == "item":
+        item = db.query(Item).filter(Item.slug == game_data["item_slug"]).scalar()
+        if user_has_item(db, current_user, item):
+            raise HTTPException(400, "User already have this item")
+    
+    # sort_card(db, current_user, game_data, card_hash)
+    return get_coins_reward(db, current_user, 'jackpot')
+    return game_data
