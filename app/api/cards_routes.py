@@ -15,8 +15,10 @@ from app.services.cards_service import (
    
     
     cancel_game_uuid,
+    reveal_card_reward,
 )
 from app.services.items_service import user_has_item
+from app.services.wallet_service import add_currency
 
 router = APIRouter(prefix="/cards", tags=["cards"])
 
@@ -30,6 +32,7 @@ def cancel_game(
 
 
 @router.get("/new-game")
+# TODO retornar se a chance esta no maximo
 def new_game(
     goal_card: Optional[str] = Query(None),
     db: Session = Depends(get_db),
@@ -57,24 +60,6 @@ def reveal_card(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) :
-    game_hash = payload.game_hash
-    
-    if not game_hash:
-        raise HTTPException(400, "Game hash is required")
-    
-    card_hash = db.query(CardHash).filter(CardHash.id == game_hash).first()
+    add_currency(db=db, user=current_user, reward_slug='coins_jackpot')
+    # save current_user on db
 
-    if not card_hash:
-        raise HTTPException(404, "Game hash not found")
-    
-
-    game_data = get_game_data(db, current_user, game_hash)
-
-    if game_data["reward_focus"] == "item":
-        item = db.query(Item).filter(Item.slug == game_data["item_slug"]).scalar()
-        if user_has_item(db, current_user, item):
-            raise HTTPException(400, "User already have this item")
-    
-    # sort_card(db, current_user, game_data, card_hash)
-    return get_coins_reward(db, current_user, 'jackpot')
-    return game_data

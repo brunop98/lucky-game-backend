@@ -1,4 +1,5 @@
 from typing import Literal, Union
+
 from pydantic import UUID4, BaseModel, NonNegativeFloat, NonNegativeInt
 
 
@@ -27,17 +28,17 @@ class CardReward(BaseModel):
 
 class CardOut(BaseModel):
     id_slug: Literal[
-        "coin_low",
-        "coin_medium",
-        "coin_jackpot",
+        "coins_low",
+        "coins_medium",
+        "coins_jackpot",
         "boost_low",
         "boost_medium",
         "boost_jackpot",
         "rare_item",
-        "common_item",
     ]
-    draw_weight_percent: NonNegativeFloat  
+    draw_weight_percent: NonNegativeFloat
     reward: CardReward
+
 
 class CardRevealIn(BaseModel):
     game_hash: UUID4 | None = None

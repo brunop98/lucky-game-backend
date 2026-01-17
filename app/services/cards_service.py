@@ -1,31 +1,32 @@
 import random
-import re
+from datetime import datetime, timezone
 from typing import Literal
-from uuid import uuid4, UUID
+from uuid import UUID, uuid4
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from datetime import datetime, timezone
 
 from app.models.building import Building
+from app.models.card_hash import CardHash
 from app.models.item import Item
 from app.models.user import User
 from app.models.user_building import UserBuilding
-from app.models.card_hash import CardHash
 from app.services.items_service import user_has_item
+from app.services.wallet_service import add_currency, get_wallet_by_user
 
 ALLOWED_REWARD_FOCUS = {
     "rare_item",
-    "coin_jackpot", 
+    "coins_jackpot",
 }
 
 BASE_PROBABILITIES = {
-    "rare_item": 0.03,      # 3.0%
-    "coin_jackpot": 0.01,   # 1.0%
+    "rare_item": 0.03,  # 3.0%
+    "coins_jackpot": 0.01,  # 1.0%
 }
 
 MIN_PROBABILITIES = {
-    "rare_item": 0.015,    # 1.5%
-    "coin_jackpot": 0.005, # 0.5%
+    "rare_item": 0.015,  # 1.5%
+    "coins_jackpot": 0.005,  # 0.5%
 }
 
 
@@ -34,7 +35,7 @@ def sort_card(db: Session, user: User, game_data, card_hash):
 
 
 def get_coins_reward(
-    db: Session, user: User, reward_focus: Literal["coin_low", "coin_medium", "jackpot"]
+    db: Session, user: User, reward_focus: Literal["coins_low", "coins_medium", "jackpot"]
 ):
     user_buildings = (
         db.query(UserBuilding).filter(UserBuilding.user_id == user.id).join(Building).all()
@@ -57,13 +58,9 @@ def get_game_data(db: Session, user: User, game_uuid: UUID):
         raise HTTPException(status_code=400, detail="Card canceled")
 
     return {
-        "reward_focus": "rare_item" if card_data.item_slug else "coin_jackpot",
+        "reward_focus": "rare_item" if card_data.item_slug else "coins_jackpot",
         "item_slug": card_data.item_slug,
     }
-
-
-# PROBABILITY
-
 
 
 # HASH
@@ -84,7 +81,7 @@ def _create_game(
     item_slug: str | None,
 ) -> CardHash:
 
-    probability = get_reward_probability(
+    probability = _get_reward_probability(
         user=user,
         reward_focus=reward_focus,
     )
@@ -123,59 +120,7 @@ def _search_active_card_hash(
     )
 
 
-def create_or_get_game(
-    db: Session,
-    user: User,
-    goal_card: str | None,
-) -> CardHash:
-    """
-    Regra:
-    - goal_card != None → jogo de ITEM
-    - goal_card == None → jogo de JACKPOT
-    """
-
-    if goal_card:
-        reward_focus = "rare_item"
-
-        item = db.query(Item).filter(Item.slug == goal_card).first()
-        if not item:
-            raise HTTPException(400, "Item not found")
-
-        if not item.drawn_available:
-            raise HTTPException(400, "Item not available")
-        
-        if user_has_item(db, user, item):
-            raise HTTPException(400, "User already has item")
-        
-
-        item_slug = item.slug
-
-    else:
-        reward_focus = "coin_jackpot"
-        item_slug = None
-
-    existing = _search_active_card_hash(
-        db=db,
-        user_id=user.id,
-        reward_focus=reward_focus,
-        item_slug=item_slug,
-    )
-
-    if existing:
-        return existing
-
-    return _create_game(
-        db=db,
-        user=user,
-        reward_focus=reward_focus,
-        item_slug=item_slug,
-    )
-
-
-# reward sort
-from datetime import datetime, timezone
-
-def get_reward_probability(
+def _get_reward_probability(
     user: User,
     reward_focus: str,
 ) -> float:
@@ -197,18 +142,18 @@ def get_reward_probability(
         pity_count = user.rare_item_miss_count
         pity_bonus = min(pity_count * 0.0015, 0.03)  # +0.15% por falha (cap 3%)
         probability += pity_bonus
-        print('pity_bonus', pity_bonus)
+        print("pity_bonus", pity_bonus)
 
     # --------------------
     # JACKPOT COOLDOWN (sem bloqueio)
     # --------------------
-    if reward_focus == "coin_jackpot" and user.last_jackpot_at:
+    if reward_focus == "coins_jackpot" and user.last_jackpot_at:
         now = datetime.now(timezone.utc)
         minutes = (now - user.last_jackpot_at).total_seconds() / 60
 
         if minutes < 30:
             # penalidade máxima = base - mínimo
-            max_penalty = base - MIN_PROBABILITIES["coin_jackpot"]
+            max_penalty = base - MIN_PROBABILITIES["coins_jackpot"]
 
             # decaimento linear
             cooldown_penalty = max_penalty * ((30 - minutes) / 30)
@@ -221,3 +166,95 @@ def get_reward_probability(
 
     # arredondamento seguro (ex: 0.0075 → 0.75%)
     return round(probability, 4)
+
+
+def create_or_get_game(
+    db: Session,
+    user: User,
+    goal_card: str | None,
+) -> CardHash:
+    """
+    Regra:
+    - goal_card != None → jogo de ITEM
+    - goal_card == None → jogo de JACKPOT
+    """
+
+    if goal_card:
+        reward_focus = "rare_item"
+
+        item = db.query(Item).filter(Item.slug == goal_card).first()
+        if not item:
+            raise HTTPException(400, "Item not found")
+
+        if not item.drawn_available:
+            raise HTTPException(400, "Item not available")
+
+        if user_has_item(db, user, item):
+            raise HTTPException(400, "User already has item")
+
+        item_slug = item.slug
+
+    else:
+        reward_focus = "coins_jackpot"
+        item_slug = None
+
+    existing = _search_active_card_hash(
+        db=db,
+        user_id=user.id,
+        reward_focus=reward_focus,
+        item_slug=item_slug,
+    )
+
+    if existing:
+        return existing
+
+    return _create_game(
+        db=db,
+        user=user,
+        reward_focus=reward_focus,
+        item_slug=item_slug,
+    )
+
+
+def reveal_card_reward(
+    db: Session,
+    user: User,
+):
+    wallet = get_wallet_by_user(db, user)
+    # add_currency(wallet=wallet, currency="xp", amount=1)
+    return
+    # TODO hasitem, item exist etc
+
+    # parms mock
+    focus_reward_probability = 0.7
+    focus_reward = "coins_jackpot"
+
+    # --
+
+    won_focus_reward = random.random() < focus_reward_probability
+
+    if won_focus_reward:
+        if focus_reward == "rare_item":
+            # add_item()
+            return
+        else:
+            user_wallet = get_wallet_by_user(db, user.id)
+            add_currency(
+                user_wallet,
+            )
+            return
+
+    # alternative_reward = get_alternative_reward()
+
+    # if 'coin' inalternative_reward:
+    #     add_coins()
+    # elif 'boost' in alternative_reward:
+    #     trigger_boost()
+    return
+
+    # return {
+    #     "reward_focus": focus_reward,
+    #     "reward_probability": focus_reward_probability,
+    #     "item_slug": "x",
+    #     "reward_won": "qualquer bosta"
+    # }

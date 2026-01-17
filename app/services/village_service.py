@@ -129,3 +129,39 @@ def next_village(db: Session, village_id: int, user_id: int):
         db.add(UserBuilding(user_id=user_id, building_id=building.id))
 
     db.flush()
+
+
+def get_next_cheaper_building_stage_cost(db: Session, user: User) -> int | None:
+    candidates = (
+        db.query(UserBuilding)
+        .join(Building)
+        .join(Villages)
+        .filter(
+            UserBuilding.user_id == user.id,
+            Villages.id == user.actual_village,
+            UserBuilding.current_stage < Building.building_stages,
+        )
+        .all()
+    )
+
+    if not candidates:
+        return None
+
+    cheapest = min(
+        candidates,
+        key=lambda ub: get_building_stage_cost(
+            db,
+            ub.building.village,
+            ub.building,
+            ub.current_stage + 1,
+        ),
+    )
+
+    cheapest_value = get_building_stage_cost(
+        db,
+        cheapest.building.village,
+        cheapest.building,
+        cheapest.current_stage + 1,
+    )
+
+    return cheapest_value

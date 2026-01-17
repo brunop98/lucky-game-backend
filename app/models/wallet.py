@@ -9,7 +9,7 @@ class Wallet(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), unique=True)
 
-    # TODO: colocar xp aqui
+    xp = Column(Integer, default=0)
     coins = Column(Integer, default=0)
     gems = Column(Integer, default=0)
     energy = Column(Integer, default=0)
