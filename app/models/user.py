@@ -35,6 +35,8 @@ class User(Base):
 
     user_item = relationship("UserItem", back_populates="user")
 
+    user_boost = relationship("UserBoost", back_populates="user")
+
     card_hash = relationship("CardHash", back_populates="user")
 
     wallet = relationship("Wallet", back_populates="user", uselist=False, lazy="joined")

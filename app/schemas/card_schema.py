@@ -29,10 +29,10 @@ class CardReward(BaseModel):
 class CardOut(BaseModel):
     id_slug: Literal[
         "coins_low",
-        "coins_medium",
+        "coins_high",
         "coins_jackpot",
         "boost_low",
-        "boost_medium",
+        "boost_high",
         "boost_jackpot",
         "rare_item",
     ]

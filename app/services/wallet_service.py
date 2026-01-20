@@ -1,5 +1,5 @@
-import re
 from typing import Literal
+
 from sqlalchemy.orm import Session
 
 from app.models.user import User
@@ -7,17 +7,16 @@ from app.models.wallet import Wallet
 from app.services.village_service import get_next_cheaper_building_stage_cost
 
 
-def _get_coins_from_reward_slug(db: Session, user: User, reward_slug: str) -> int:
+def _get_coins_from_reward_slug(db: Session, user: User, reward_slug: Literal["coins_low", "coins_high", "coins_jackpot"]) -> int:
     cheapest_building_stage_cost = get_next_cheaper_building_stage_cost(db, user)
 
     if "low" in reward_slug:
         return cheapest_building_stage_cost * 0.04
-    elif "medium" in reward_slug:
+    elif "high" in reward_slug:
         return cheapest_building_stage_cost * 0.12
     elif "jackpot" in reward_slug:
         return cheapest_building_stage_cost * 0.4
 
-    raise Exception(f"Invalid reward_slug: {reward_slug}")
 
 
 def add_currency(

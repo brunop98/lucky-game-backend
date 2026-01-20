@@ -11,6 +11,7 @@ from app.models.card_hash import CardHash
 from app.models.item import Item
 from app.models.user import User
 from app.models.user_building import UserBuilding
+from app.services.boost_service import trigger_boost
 from app.services.items_service import add_item, user_has_item
 from app.services.wallet_service import add_currency, get_wallet_by_user
 
@@ -31,9 +32,9 @@ MIN_PROBABILITIES = {
 
 ALTERNATIVE_REWARDS_PROBABILITIES = {
     "coins_low": 0.42,
-    "coins_medium": 0.27,
+    "coins_high": 0.27,
     "boost_low": 0.14,
-    "boost_medium": 0.09,
+    "boost_high": 0.09,
     "boost_jackpot": 0.08,
 }
 
@@ -43,7 +44,7 @@ def sort_card(db: Session, user: User, game_data, card_hash):
 
 
 def get_coins_reward(
-    db: Session, user: User, reward_focus: Literal["coins_low", "coins_medium", "jackpot"]
+    db: Session, user: User, reward_focus: Literal["coins_low", "coins_high", "jackpot"]
 ):
     user_buildings = (
         db.query(UserBuilding).filter(UserBuilding.user_id == user.id).join(Building).all()
@@ -242,14 +243,14 @@ def draw_card_weighted(
     card_hash = db.query(CardHash).filter(CardHash.id == game_uuid).first()
 
     focus_reward = card_hash.reward_focus
-    focus_reward_probability =card_hash.reward_probability
+    focus_reward_probability = card_hash.reward_probability
     #  TODO remover parms mock
-    focus_reward_probability = 1
+    focus_reward_probability = 0
     focus_reward = "rare_item"
     # --
     won_focus_reward = random.random() < focus_reward_probability
 
-    if  won_focus_reward:  # TODO remover a gambiarra
+    if won_focus_reward:  # TODO remover a gambiarra
         if focus_reward == "rare_item":
 
             if user_has_item(db, user, card_hash.item_slug):
@@ -270,7 +271,7 @@ def draw_card_weighted(
     if "coins" in alternative_reward:
         return add_currency(db, user, currency="coins", reward_slug=alternative_reward)
     elif "boost" in alternative_reward:
-        return "boooooo"
+        return trigger_boost(db, user, alternative_reward, boost_type="xp")
     return
 
     # return {
