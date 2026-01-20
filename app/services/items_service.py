@@ -21,7 +21,6 @@ def user_has_item(db: Session, user: User, item: Item | str) -> bool:
         .filter(UserItem.user_id == user.id, UserItem.item_id == item.id, UserItem.stack_size > 0)
         .scalar()
     )
-    
 
     return user_item is not None
 
@@ -39,7 +38,10 @@ def add_item(
     db.refresh(user_item)
 
     return {
-        "item_slug": item.slug,
-        "stack_size": user_item.stack_size,
-        "added_at": user_item.updated_at,
+        "new_user_item": {
+            "item_slug": item.slug,
+            "stack_size": user_item.stack_size,
+        },
+        "consumable": False,
+        "received_at": user_item.created_at,
     }

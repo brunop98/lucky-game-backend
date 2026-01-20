@@ -239,17 +239,17 @@ def draw_card_weighted(
     game_uuid: UUID,
 ):
 
-    # parms mock
-    focus_reward_probability = 0.7
-
-    # --
     card_hash = db.query(CardHash).filter(CardHash.id == game_uuid).first()
 
     focus_reward = card_hash.reward_focus
-
+    focus_reward_probability =card_hash.reward_probability
+    #  TODO remover parms mock
+    focus_reward_probability = 1
+    focus_reward = "rare_item"
+    # --
     won_focus_reward = random.random() < focus_reward_probability
 
-    if 1 == 0 and won_focus_reward:  # TODO remover a gambiarra
+    if  won_focus_reward:  # TODO remover a gambiarra
         if focus_reward == "rare_item":
 
             if user_has_item(db, user, card_hash.item_slug):
@@ -268,7 +268,7 @@ def draw_card_weighted(
     alternative_reward = _draw_weighted()
 
     if "coins" in alternative_reward:
-        add_currency(db, user, currency="coins", reward_slug=alternative_reward)
+        return add_currency(db, user, currency="coins", reward_slug=alternative_reward)
     elif "boost" in alternative_reward:
         return "boooooo"
     return

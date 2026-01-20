@@ -16,7 +16,7 @@ def _get_coins_from_reward_slug(db: Session, user: User, reward_slug: str) -> in
         return cheapest_building_stage_cost * 0.12
     elif "jackpot" in reward_slug:
         return cheapest_building_stage_cost * 0.4
-    
+
     raise Exception(f"Invalid reward_slug: {reward_slug}")
 
 
@@ -37,16 +37,24 @@ def add_currency(
         raise Exception("Currency must be provided if amount is provided")
     # ---
     if reward_slug:
-        if "coins" in reward_slug:
-            currency = "coins"
-            amount = _get_coins_from_reward_slug(db=db, user=user, reward_slug=reward_slug)
+        prefix = reward_slug.split("_", 1)[0]
 
-    
-    setattr(user.wallet, currency, getattr(user.wallet, 'coins') + amount)
+        if prefix not in {"coins", "xp", "gems", "energy"}:
+            raise ValueError(f"Invalid reward_slug: {reward_slug}")
+
+        currency = prefix
+
+        amount = _get_coins_from_reward_slug(db=db, user=user, reward_slug=reward_slug)
+
+    setattr(user.wallet, currency, getattr(user.wallet, "coins") + amount)
     db.commit()
     db.refresh(user.wallet)
 
-    return
+    return {
+        "added_currency": {"amount": amount, "currency": currency},
+        "received_at": user.wallet.updated_at,
+        "consumable": True,
+    }
 
 
 def get_wallet_by_user(db: Session, user: User) -> Wallet:
