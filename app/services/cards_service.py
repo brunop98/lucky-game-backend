@@ -242,12 +242,9 @@ def draw_card_weighted(
 
     card_hash = db.query(CardHash).filter(CardHash.id == game_uuid).first()
 
-    focus_reward = card_hash.reward_focus
     focus_reward_probability = card_hash.reward_probability
-    #  TODO remover parms mock
-    focus_reward_probability = 0
-    focus_reward = "rare_item"
-    # --
+    focus_reward = card_hash.reward_focus
+
     won_focus_reward = random.random() < focus_reward_probability
 
     if won_focus_reward:  # TODO remover a gambiarra
