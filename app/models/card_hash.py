@@ -1,5 +1,6 @@
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     Column,
     Float,
     Integer,
@@ -38,3 +39,10 @@ class CardHash(Base):
     # relations
     user = relationship("User", back_populates="card_hash")
     item = relationship("Item", back_populates="card_hash")
+
+
+    __table_args__ = (
+        CheckConstraint(
+            "reward_focus IN ('rare_item', 'coins_jackpot')", name="ck_card_hashes_reward_focus"
+        ),
+    )

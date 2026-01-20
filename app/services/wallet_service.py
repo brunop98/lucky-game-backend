@@ -6,15 +6,18 @@ from app.models.user import User
 from app.models.wallet import Wallet
 from app.services.village_service import get_next_cheaper_building_stage_cost
 
+
 def _get_coins_from_reward_slug(db: Session, user: User, reward_slug: str) -> int:
     cheapest_building_stage_cost = get_next_cheaper_building_stage_cost(db, user)
 
-    if 'low' in reward_slug:
+    if "low" in reward_slug:
         return cheapest_building_stage_cost * 0.04
-    elif 'medium' in reward_slug:
+    elif "medium" in reward_slug:
         return cheapest_building_stage_cost * 0.12
-    else:
+    elif "jackpot" in reward_slug:
         return cheapest_building_stage_cost * 0.4
+    
+    raise Exception(f"Invalid reward_slug: {reward_slug}")
 
 
 def add_currency(
@@ -34,12 +37,12 @@ def add_currency(
         raise Exception("Currency must be provided if amount is provided")
     # ---
     if reward_slug:
-        if  'coins' in reward_slug:
-            currency = 'coins'
+        if "coins" in reward_slug:
+            currency = "coins"
             amount = _get_coins_from_reward_slug(db=db, user=user, reward_slug=reward_slug)
 
-
-    setattr(user.wallet, currency, getattr(user.wallet, currency) + amount)
+    
+    setattr(user.wallet, currency, getattr(user.wallet, 'coins') + amount)
     db.commit()
     db.refresh(user.wallet)
 

@@ -10,14 +10,12 @@ from app.models.user import User
 from app.schemas.card_schema import CardOut, CardRevealIn
 from app.services.cards_service import (
     create_or_get_game,
+    draw_card_weighted,
     get_coins_reward,
     get_game_data,
-   
-    
     cancel_game_uuid,
-    reveal_card_reward,
 )
-from app.services.items_service import user_has_item
+from app.services.items_service import add_item, user_has_item
 from app.services.wallet_service import add_currency
 
 router = APIRouter(prefix="/cards", tags=["cards"])
@@ -52,14 +50,11 @@ def new_game(
     }
 
 
-
-
 @router.post("/reveal-card")
 def reveal_card(
     payload: CardRevealIn,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-) :
-    add_currency(db=db, user=current_user, reward_slug='coins_jackpot')
+):
+    return draw_card_weighted(db, current_user, payload.game_uuid)
     # save current_user on db
-

@@ -11,7 +11,7 @@ from app.models.card_hash import CardHash
 from app.models.item import Item
 from app.models.user import User
 from app.models.user_building import UserBuilding
-from app.services.items_service import user_has_item
+from app.services.items_service import add_item, user_has_item
 from app.services.wallet_service import add_currency, get_wallet_by_user
 
 ALLOWED_REWARD_FOCUS = {
@@ -27,6 +27,14 @@ BASE_PROBABILITIES = {
 MIN_PROBABILITIES = {
     "rare_item": 0.015,  # 1.5%
     "coins_jackpot": 0.005,  # 0.5%
+}
+
+ALTERNATIVE_REWARDS_PROBABILITIES = {
+    "coins_low": 0.42,
+    "coins_medium": 0.27,
+    "boost_low": 0.14,
+    "boost_medium": 0.09,
+    "boost_jackpot": 0.08,
 }
 
 
@@ -183,14 +191,11 @@ def create_or_get_game(
         reward_focus = "rare_item"
 
         item = db.query(Item).filter(Item.slug == goal_card).first()
-        if not item:
-            raise HTTPException(400, "Item not found")
+        if user_has_item(db, user, item):
+            raise HTTPException(400, "User already has item")
 
         if not item.drawn_available:
             raise HTTPException(400, "Item not available")
-
-        if user_has_item(db, user, item):
-            raise HTTPException(400, "User already has item")
 
         item_slug = item.slug
 
@@ -216,27 +221,43 @@ def create_or_get_game(
     )
 
 
-def reveal_card_reward(
+def _draw_weighted():
+    total = sum(ALTERNATIVE_REWARDS_PROBABILITIES.values())
+
+    if not abs(total - 1.0) < 1e-6:
+        raise ValueError(f"Probabilities must sum to 1.0, got {total}")
+
+    rewards = list(ALTERNATIVE_REWARDS_PROBABILITIES.keys())
+    weights = list(ALTERNATIVE_REWARDS_PROBABILITIES.values())
+
+    return random.choices(rewards, weights=weights, k=1)[0]
+
+
+def draw_card_weighted(
     db: Session,
     user: User,
+    game_uuid: UUID,
 ):
-    wallet = get_wallet_by_user(db, user)
-    # add_currency(wallet=wallet, currency="xp", amount=1)
-    return
-    # TODO hasitem, item exist etc
 
     # parms mock
     focus_reward_probability = 0.7
-    focus_reward = "coins_jackpot"
 
     # --
+    card_hash = db.query(CardHash).filter(CardHash.id == game_uuid).first()
+
+    focus_reward = card_hash.reward_focus
 
     won_focus_reward = random.random() < focus_reward_probability
 
-    if won_focus_reward:
+    if 1 == 0 and won_focus_reward:  # TODO remover a gambiarra
         if focus_reward == "rare_item":
-            # add_item()
-            return
+
+            if user_has_item(db, user, card_hash.item_slug):
+                card_hash.canceled = True
+                db.commit()
+                raise HTTPException(400, "User already has item")
+
+            return add_item(db, user, card_hash.item_slug)
         else:
             user_wallet = get_wallet_by_user(db, user.id)
             add_currency(
@@ -244,12 +265,12 @@ def reveal_card_reward(
             )
             return
 
-    # alternative_reward = get_alternative_reward()
+    alternative_reward = _draw_weighted()
 
-    # if 'coin' inalternative_reward:
-    #     add_coins()
-    # elif 'boost' in alternative_reward:
-    #     trigger_boost()
+    if "coins" in alternative_reward:
+        add_currency(db, user, currency="coins", reward_slug=alternative_reward)
+    elif "boost" in alternative_reward:
+        return "boooooo"
     return
 
     # return {

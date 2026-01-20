@@ -21,7 +21,7 @@ class CardItemReward(BaseModel):
 
 
 class CardReward(BaseModel):
-    type: Literal["coin", "buff", "item"]
+    type: Literal["coins", "boost", "item"]
     reward: Union[CardCoinReward, CardBoostReward, CardItemReward]
     image_url: str
 
@@ -41,4 +41,4 @@ class CardOut(BaseModel):
 
 
 class CardRevealIn(BaseModel):
-    game_hash: UUID4 | None = None
+    game_uuid: UUID4 | None = None
