@@ -161,3 +161,8 @@ def trigger_boost(
         "recieved_at": safe_user_boost.created_at,
         "consumable": True
     }    
+
+def get_active_boost(db: Session, user: User, boost_type=Literal["xp", "energy", "coins", "gems"]):
+    active_boost =  db.query(UserBoost).filter(UserBoost.user_id == user.id, UserBoost.boost_type == boost_type).order_by(UserBoost.created_at.desc()).first()
+    if active_boost and active_boost.ends_at > datetime.now(timezone.utc):
+        return active_boost
