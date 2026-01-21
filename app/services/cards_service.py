@@ -239,7 +239,6 @@ def draw_card_weighted(
     user: User,
     game_uuid: UUID,
 ):
-
     card_hash = db.query(CardHash).filter(CardHash.id == game_uuid).first()
 
     if not card_hash:
@@ -253,32 +252,30 @@ def draw_card_weighted(
 
     focus_reward_probability = card_hash.reward_probability
     focus_reward = card_hash.reward_focus
-    # TODO registrar used e canceled
+
+    result = None
+
     won_focus_reward = random.random() < focus_reward_probability
     if won_focus_reward:
         if focus_reward == "rare_item":
-
             if user_has_item(db, user, card_hash.item_slug):
                 card_hash.canceled = True
+
                 db.commit()
                 raise HTTPException(400, "User already has item")
 
-            return add_item(db, user, card_hash.item_slug)
+            result = add_item(db, user, card_hash.item_slug)
         else:
+            result = add_currency(db, user, currency="coins", reward_slug="coins_jackpot")
+    else:
+        alternative_reward = _draw_weighted()
 
-            return add_currency(db, user, currency="coins", reward_slug="coins_jackpot")
+        if "coins" in alternative_reward:
+            result = add_currency(db, user, currency="coins", reward_slug=alternative_reward)
+        elif "boost" in alternative_reward:
+            result = trigger_boost(db, user, alternative_reward, boost_type="xp")
 
-    alternative_reward = _draw_weighted()
+    card_hash.used = True
+    db.commit()
 
-    if "coins" in alternative_reward:
-        return add_currency(db, user, currency="coins", reward_slug=alternative_reward)
-    elif "boost" in alternative_reward:
-        return trigger_boost(db, user, alternative_reward, boost_type="xp")
-    return
-
-    # return {
-    #     "reward_focus": focus_reward,
-    #     "reward_probability": focus_reward_probability,
-    #     "item_slug": "x",
-    #     "reward_won": "qualquer bosta"
-    # }
+    return result
