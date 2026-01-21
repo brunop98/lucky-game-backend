@@ -17,7 +17,7 @@ class CardItemReward(BaseModel):
     item_id: NonNegativeInt
     rarity: NonNegativeFloat
     image_url: str
-    # TODO: quando a tabela de itens for criada, definir esse schema
+    
 
 
 class CardReward(BaseModel):

@@ -247,7 +247,7 @@ def draw_card_weighted(
 
     won_focus_reward = random.random() < focus_reward_probability
 
-    if won_focus_reward:  # TODO remover a gambiarra
+    if won_focus_reward:  
         if focus_reward == "rare_item":
 
             if user_has_item(db, user, card_hash.item_slug):

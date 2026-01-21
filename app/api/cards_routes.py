@@ -30,7 +30,6 @@ def cancel_game(
 
 
 @router.get("/new-game")
-# TODO retornar se a chance esta no maximo
 def new_game(
     goal_card: Optional[str] = Query(None),
     db: Session = Depends(get_db),

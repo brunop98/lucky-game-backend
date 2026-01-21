@@ -151,7 +151,7 @@ def trigger_boost(
         if not safe_user_boost:
             safe_user_boost = user_boost
 
-    # duration_seconds = safe_user_boost.ends_at - safe_user_boost.starts_at # TODO
+    
 
     return {
         "new_user_boost":{
