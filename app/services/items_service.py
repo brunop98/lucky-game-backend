@@ -38,10 +38,11 @@ def add_item(
     db.refresh(user_item)
 
     return {
-        "new_user_item": {
+        "reward_data": {
             "item_slug": item.slug,
             "stack_size": user_item.stack_size,
         },
         "consumable": False,
         "received_at": user_item.created_at,
+        "type": "item",
     }

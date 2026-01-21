@@ -1,12 +1,10 @@
 from datetime import datetime, timedelta, timezone
-from hmac import new
 from typing import Literal
 
 from requests import Session
 
 from app.models.user import User
 from app.models.user_boost import UserBoost
-
 
 XP_MULTIPLIERS = {
     "boost_low": {"multiplier": 1.3, "duration_seconds": 120},
@@ -20,7 +18,10 @@ MAX_BOOST_DURATION = timedelta(minutes=12)
 
 def _get_xp_data(reward_slug: Literal["boost_low", "boost_high", "boost_jackpot"]):
 
-    return {"multiplier": XP_MULTIPLIERS[reward_slug]["multiplier"], "duration_seconds": XP_MULTIPLIERS[reward_slug]["duration_seconds"]}
+    return {
+        "multiplier": XP_MULTIPLIERS[reward_slug]["multiplier"],
+        "duration_seconds": XP_MULTIPLIERS[reward_slug]["duration_seconds"],
+    }
 
 
 def grant_boost(db, user, multiplier, duration_seconds, source="card", boost_type=Literal["xp"]):
@@ -37,6 +38,7 @@ def grant_boost(db, user, multiplier, duration_seconds, source="card", boost_typ
 
     db.add(boost)
     return boost
+
 
 def _get_safe_xp_boost_accumulation_calc(
     db: Session,
@@ -66,7 +68,6 @@ def _get_safe_xp_boost_accumulation_calc(
 
     # aplica cap de multiplicador
     safe_multiplier = min(new_user_boost.multiplier, MAX_BOOST_ACTIVE_MULTIPLIER)
-
 
     # calcula duração segura
     new_user_boost_duration: timedelta = new_user_boost.ends_at - new_user_boost.starts_at
@@ -127,8 +128,6 @@ def _get_safe_xp_boost_accumulation_calc(
 
     return False
 
-        
-    
 
 def trigger_boost(
     db: Session,
@@ -142,27 +141,35 @@ def trigger_boost(
         xp_multiplier = _get_xp_data(reward_slug)["multiplier"]
         duration_seconds = _get_xp_data(reward_slug)["duration_seconds"]
 
-        user_boost = grant_boost(db, user, xp_multiplier, duration_seconds, source="card", boost_type=boost_type)
-
+        user_boost = grant_boost(
+            db, user, xp_multiplier, duration_seconds, source="card", boost_type=boost_type
+        )
 
         db.commit()
 
-        safe_user_boost = _get_safe_xp_boost_accumulation_calc(db, user, user_boost, is_jackpot=reward_slug == "boost_jackpot")
+        safe_user_boost = _get_safe_xp_boost_accumulation_calc(
+            db, user, user_boost, is_jackpot=reward_slug == "boost_jackpot"
+        )
         if not safe_user_boost:
             safe_user_boost = user_boost
 
-    
-
     return {
-        "new_user_boost":{
+        "reward_data": {
             "multiplier": safe_user_boost.multiplier,
-            "duration_seconds": duration_seconds
+            "duration_seconds": duration_seconds,
         },
-        "recieved_at": safe_user_boost.created_at,
-        "consumable": True
-    }    
+        "received_at": safe_user_boost.created_at,
+        "consumable": True,
+        "type": "boost",
+    }
+
 
 def get_active_boost(db: Session, user: User, boost_type=Literal["xp", "energy", "coins", "gems"]):
-    active_boost =  db.query(UserBoost).filter(UserBoost.user_id == user.id, UserBoost.boost_type == boost_type).order_by(UserBoost.created_at.desc()).first()
+    active_boost = (
+        db.query(UserBoost)
+        .filter(UserBoost.user_id == user.id, UserBoost.boost_type == boost_type)
+        .order_by(UserBoost.created_at.desc())
+        .first()
+    )
     if active_boost and active_boost.ends_at > datetime.now(timezone.utc):
         return active_boost

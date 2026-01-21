@@ -7,7 +7,8 @@ from app.core.auth import get_current_user
 from app.models import CardHash
 from app.models.item import Item
 from app.models.user import User
-from app.schemas.card_schema import CardOut, CardRevealIn
+from app.schemas.card_schema import NewGameIn, NewGameOut, RevealCardIn
+from app.schemas.reward_schema import RewardOut
 from app.services.cards_service import (
     create_or_get_game,
     draw_card_weighted,
@@ -31,14 +32,14 @@ def cancel_game(
 
 @router.get("/new-game")
 def new_game(
-    goal_card: Optional[str] = Query(None),
+    query: NewGameIn = Depends(),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+) -> NewGameOut:
     game = create_or_get_game(
         db=db,
         user=current_user,
-        goal_card=goal_card,
+        goal_card=query.goal_card,
     )
 
     return {
@@ -49,11 +50,11 @@ def new_game(
     }
 
 
-@router.post("/reveal-card")
+@router.post("/reveal-card") 
 def reveal_card(
-    payload: CardRevealIn,
+    payload: RevealCardIn,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-):
+)-> RewardOut:
     return draw_card_weighted(db, current_user, payload.game_uuid)
     # save current_user on db

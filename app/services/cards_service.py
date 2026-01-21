@@ -242,12 +242,20 @@ def draw_card_weighted(
 
     card_hash = db.query(CardHash).filter(CardHash.id == game_uuid).first()
 
+    if not card_hash:
+        raise HTTPException(404, "Card not found")
+
+    if card_hash.used:
+        raise HTTPException(400, "Card already used")
+
+    if card_hash.canceled:
+        raise HTTPException(400, "Card canceled")
+
     focus_reward_probability = card_hash.reward_probability
     focus_reward = card_hash.reward_focus
-
+    # TODO registrar used e canceled
     won_focus_reward = random.random() < focus_reward_probability
-
-    if won_focus_reward:  
+    if won_focus_reward:
         if focus_reward == "rare_item":
 
             if user_has_item(db, user, card_hash.item_slug):
@@ -257,11 +265,8 @@ def draw_card_weighted(
 
             return add_item(db, user, card_hash.item_slug)
         else:
-            user_wallet = get_wallet_by_user(db, user.id)
-            add_currency(
-                user_wallet,
-            )
-            return
+
+            return add_currency(db, user, currency="coins", reward_slug="coins_jackpot")
 
     alternative_reward = _draw_weighted()
 

@@ -65,9 +65,10 @@ def add_currency(
     db.refresh(user.wallet)
 
     return {
-        "added_currency": {"amount": amount, "currency": currency, "multiplier": multiplier},
+        "reward_data": {"amount": amount, "currency": currency, "multiplier": multiplier},
         "received_at": user.wallet.updated_at,
         "consumable": True,
+        "type": "currency",
     }
 
 

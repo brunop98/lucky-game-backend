@@ -1,44 +1,26 @@
-from typing import Literal, Union
+from typing import Literal, Optional, Union
+from uuid import UUID
 
-from pydantic import UUID4, BaseModel, NonNegativeFloat, NonNegativeInt
-
-
-class CardCoinReward(BaseModel):
-    ammount: NonNegativeInt
+from pydantic import UUID4, BaseModel, Field, NonNegativeFloat, NonNegativeInt
 
 
-class CardBoostReward(BaseModel):
-    multiplier: NonNegativeFloat
-    duration_seconds: NonNegativeInt
-    image_url: str
+class NewGameIn(BaseModel):
+    goal_card: Optional[str] = Field(
+        default=None,
+        description="Slug da carta objetivo (ex: item3). Caso não esteja presente, o jogo será de coins_jackpot.",
+    )
 
 
-class CardItemReward(BaseModel):
-    item_id: NonNegativeInt
-    rarity: NonNegativeFloat
-    image_url: str
-    
+class NewGameOut(BaseModel):
+    game_uuid: UUID
+    reward_focus: str
+    reward_probability: float = Field(
+        ...,
+        ge=0,
+        le=1,
+    )
+    item_slug: Optional[str] = None
 
 
-class CardReward(BaseModel):
-    type: Literal["coins", "boost", "item"]
-    reward: Union[CardCoinReward, CardBoostReward, CardItemReward]
-    image_url: str
-
-
-class CardOut(BaseModel):
-    id_slug: Literal[
-        "coins_low",
-        "coins_high",
-        "coins_jackpot",
-        "boost_low",
-        "boost_high",
-        "boost_jackpot",
-        "rare_item",
-    ]
-    draw_weight_percent: NonNegativeFloat
-    reward: CardReward
-
-
-class CardRevealIn(BaseModel):
+class RevealCardIn(BaseModel):
     game_uuid: UUID4 | None = None
