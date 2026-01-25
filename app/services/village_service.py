@@ -145,7 +145,7 @@ def upgrade_building(db: Session, user: User, building_id: int) -> UpdateBuildin
         ub.current_stage += 1
 
     deduce_currency(db, user, "coins", stage_cost)
-        db.commit()
+    db.commit()
 
     return {
         "message": "Building upgraded successfully",
