@@ -10,6 +10,7 @@ router = APIRouter(prefix="/user", tags=["user"])
 
 @router.get("")
 def get_user(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> UserOut:
+    
     return {
         "full_name": current_user.full_name,
         "rank": current_user.rank,
@@ -21,5 +22,6 @@ def get_user(db: Session = Depends(get_db), current_user: User = Depends(get_cur
             "coins": current_user.wallet.coins,
             "gems": current_user.wallet.gems,
             "energy": current_user.wallet.energy,
+            "xp": current_user.wallet.xp
         } if current_user.wallet else None
     }

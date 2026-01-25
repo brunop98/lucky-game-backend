@@ -46,5 +46,5 @@ def get_or_create_user(
             raise
     else:
         wallet = db.query(Wallet).filter(Wallet.user_id == user.id).first()
-
+    
     return user, wallet
