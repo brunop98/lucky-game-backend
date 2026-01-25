@@ -128,6 +128,9 @@ def get_next_cheaper_building_stage_cost(db: Session, user: User) -> int | None:
 def upgrade_building(db: Session, user: User, building_id: int) -> UpdateBuildingOut:
     from app.services.wallet_service import deduce_currency
 
+    # TODO: add xp
+    # TODO: if all buildings are upgraded at the village, upgrade the village
+
     ub = db.query(UserBuilding).filter(
         UserBuilding.user_id == user.id,
         UserBuilding.building_id == building_id

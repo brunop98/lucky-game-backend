@@ -36,6 +36,7 @@ ALTERNATIVE_REWARDS_PROBABILITIES = {
     "boost_low": 0.14,
     "boost_high": 0.09,
     "boost_jackpot": 0.08,
+    # TODO: energy
 }
 
 
