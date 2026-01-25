@@ -1,5 +1,6 @@
 from typing import Literal
 
+from fastapi import HTTPException
 from requests import get
 from sqlalchemy.orm import Session
 
@@ -40,13 +41,12 @@ def add_currency(
         raise Exception("Currency must be provided if amount is provided")
     # ---
     multiplier = 1
-    
+
     active_boost = get_active_boost(db, user, boost_type=currency)
     if active_boost:
         multiplier = active_boost.multiplier
 
     allowed_currencies = {"coins", "xp", "gems", "energy"}
-
 
     if reward_slug:
         prefix = reward_slug.split("_", 1)[0]
@@ -60,9 +60,8 @@ def add_currency(
 
     amount = amount * multiplier
     amount = int(amount)
-    setattr(user.wallet, currency, getattr(user.wallet, "coins") + (amount ))
-    db.commit()
-    db.refresh(user.wallet)
+    setattr(user.wallet, currency, getattr(user.wallet, currency) + (amount))
+    
 
     return {
         "reward_data": {"amount": amount, "currency": currency, "multiplier": multiplier},
@@ -70,6 +69,13 @@ def add_currency(
         "consumable": True,
         "type": "currency",
     }
+
+
+def deduce_currency(
+    db: Session, user: User, currency: Literal["xp", "coins", "gems", "energy"], amount: int
+):
+    amount = int(amount)
+    setattr(user.wallet, currency, getattr(user.wallet, currency) - (amount))
 
 
 def get_wallet_by_user(db: Session, user: User) -> Wallet:

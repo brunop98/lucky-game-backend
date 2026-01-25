@@ -1,4 +1,4 @@
-from pydantic import BaseModel, PositiveInt
+from pydantic import BaseModel, NonNegativeInt, PositiveInt
 
 from app.schemas.building_schema import BuildingOut
 
@@ -15,3 +15,10 @@ class VillageOut(BaseModel):
     name: str
     completion_reward: CompletionRewardOut
     buildings: list[BuildingOut]
+
+class UpdateBuildingIn(BaseModel):
+    building_id: NonNegativeInt
+
+class UpdateBuildingOut(BaseModel):
+    message: str
+    cost: NonNegativeInt

@@ -5,6 +5,7 @@ from app.models.building import Building
 from app.models.user import User
 from app.models.user_building import UserBuilding
 from app.models.villages import Villages
+from app.schemas.village_schema import UpdateBuildingOut
 
 
 def get_building_stage_cost(db: Session, village: Villages, building: Building, stage: int) -> int:
@@ -28,87 +29,43 @@ def get_building_stage_cost(db: Session, village: Villages, building: Building, 
 
 
 def get_actual_village(db: Session, user: User) -> dict:
-    village = (
-        db.query(
-            Villages.id,
-            Villages.name,
-            Villages.building_cost_modifier,
-            Villages.completion_reward_coins,
-            Villages.completion_reward_gems,
-            Villages.completion_reward_xp,
-            Villages.completion_reward_energy,
-            Villages.completion_reward_item_id,
-        )
-        .filter(Villages.id == user.actual_village)
-        .first()
-    )
-
+    village = db.query(Villages).filter(Villages.id == user.actual_village).first()
     if not village:
         raise HTTPException(status_code=404, detail="Village not found")
 
-    rows = (
-        db.query(
-            Building.id,
-            Building.name,
-            Building.building_stages,
-            Building.cost_curve,
-            Building.base_cost,
-            Building.cost_multiplier,
-            Building.created_at,
-            Building.updated_at,
-            UserBuilding.id.label("user_building_id"),
-            UserBuilding.current_stage.label("user_building_current_stage"),
-            UserBuilding.created_at.label("user_building_created_at"),
-            UserBuilding.updated_at.label("user_building_updated_at"),
-        )
-        .join(Building)
-        .filter(Building.village_id == village.id, UserBuilding.user_id == user.id)
+    user_buildings = (
+        db.query(UserBuilding)
+        .filter(UserBuilding.user_id == user.id)
         .all()
     )
 
-    if not rows:
-        raise HTTPException(status_code=404, detail="No buildings found for the user's village")
-
     buildings = []
-    for row in rows:
-        (
-            building_id,
-            name,
-            building_stages,
-            cost_curve,
-            base_base_cost,
-            cost_multiplier,
-            created_at,
-            updated_at,
-            user_building_id,
-            user_building_current_stage,
-            user_building_created_at,
-            user_building_updated_at,
-        ) = row
-        building_dict = {
-            "id": building_id,
-            "name": name,
-            "building_stages": building_stages,
-            "created_at": created_at,
-            "updated_at": updated_at,
+    for ub in user_buildings:
+        building = db.query(Building).filter(Building.id == ub.building_id).first()
+        next_stage_cost = (
+            get_building_stage_cost(db, village, building, ub.current_stage + 1)
+            if ub.current_stage < building.building_stages
+            else None
+        )
+
+        buildings.append({
+            "id": building.id,
+            "name": building.name,
+            "building_stages": building.building_stages,
+            "created_at": building.created_at,
+            "updated_at": building.updated_at,
             "next_stage": {
-                "max": user_building_current_stage >= building_stages,
-                "cost": (
-                    get_building_stage_cost(db, village, row, user_building_current_stage + 1)
-                    if user_building_current_stage < building_stages
-                    else None
-                ),
-                # "stage": user_building_current_stage + 1 if user_building_current_stage < building_stages else None,
+                "max": ub.current_stage >= building.building_stages,
+                "cost": next_stage_cost,
             },
             "user_building": {
-                "id": user_building_id,
-                "current_stage": user_building_current_stage,
-                "created_at": user_building_created_at,
-                "updated_at": user_building_updated_at,
-            },
-        }
-        buildings.append(building_dict)
-
+                "id": ub.id,
+                "current_stage": ub.current_stage,
+                "created_at": ub.created_at,
+                "updated_at": ub.updated_at,
+            }
+        })
+    buildings = sorted(buildings, key=lambda x: x["id"])
     return {
         "id": village.id,
         "name": village.name,
@@ -120,6 +77,7 @@ def get_actual_village(db: Session, user: User) -> dict:
         },
         "buildings": buildings,
     }
+
 
 
 def next_village(db: Session, village_id: int, user_id: int):
@@ -165,3 +123,33 @@ def get_next_cheaper_building_stage_cost(db: Session, user: User) -> int | None:
     )
 
     return cheapest_value
+
+
+def upgrade_building(db: Session, user: User, building_id: int) -> UpdateBuildingOut:
+    from app.services.wallet_service import deduce_currency
+
+    ub = db.query(UserBuilding).filter(
+        UserBuilding.user_id == user.id,
+        UserBuilding.building_id == building_id
+    ).first()
+
+    building = db.query(Building).filter(Building.id == building_id).first()
+    village = db.query(Villages).filter(Villages.id == ub.building.village_id).first()
+
+    stage_cost = get_building_stage_cost(db, village, building, ub.current_stage + 1)
+
+    if user.wallet.coins < stage_cost:
+        raise HTTPException(status_code=400, detail="Not enough coins to upgrade building")
+
+    if ub.current_stage < building.building_stages:
+        ub.current_stage += 1
+
+    deduce_currency(db, user, "coins", stage_cost)
+        db.commit()
+
+    return {
+        "message": "Building upgraded successfully",
+        "cost": stage_cost,
+    }
+
+
