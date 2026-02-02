@@ -55,6 +55,6 @@ def reveal_card(
     payload: RevealCardIn,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-)-> RewardOut:
+):
     return draw_card_weighted(db, current_user, payload.game_uuid)
     # save current_user on db

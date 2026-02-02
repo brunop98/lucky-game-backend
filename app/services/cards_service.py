@@ -13,7 +13,7 @@ from app.models.user import User
 from app.models.user_building import UserBuilding
 from app.services.boost_service import trigger_boost
 from app.services.items_service import add_item, user_has_item
-from app.services.wallet_service import add_currency, get_wallet_by_user
+from app.services.wallet_service import add_currency, deduce_currency, get_wallet_by_user
 
 ALLOWED_REWARD_FOCUS = {
     "rare_item",
@@ -31,13 +31,15 @@ MIN_PROBABILITIES = {
 }
 
 ALTERNATIVE_REWARDS_PROBABILITIES = {
-    "coins_low": 0.42,
-    "coins_high": 0.27,
-    "boost_low": 0.14,
-    "boost_high": 0.09,
-    "boost_jackpot": 0.08,
-    # TODO: energy
+  "coins_low": 0.37,
+  "coins_high": 0.24,
+  "boost_low": 0.12,
+  "boost_high": 0.09,
+  "boost_jackpot": 0.04,
+  "energy_low": 0.10,
+  "energy_high": 0.04 
 }
+
 
 
 def sort_card(db: Session, user: User, game_data, card_hash):
@@ -212,6 +214,9 @@ def create_or_get_game(
         item_slug=item_slug,
     )
 
+    deduce_currency(db, user, "energy", 1)
+    db.commit()
+
     if existing:
         return existing
 
@@ -275,8 +280,10 @@ def draw_card_weighted(
             result = add_currency(db, user, currency="coins", reward_slug=alternative_reward)
         elif "boost" in alternative_reward:
             result = trigger_boost(db, user, alternative_reward, boost_type="xp")
-
-    card_hash.used = True
+        elif "energy" in alternative_reward:
+            result = add_currency(db, user, currency="energy", reward_slug=alternative_reward)
+    
+    # card_hash.used = True
     db.commit()
 
     return result

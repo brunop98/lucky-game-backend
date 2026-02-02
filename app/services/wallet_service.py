@@ -21,6 +21,15 @@ def _get_coins_from_reward_slug(
         return cheapest_building_stage_cost * 0.12
     elif "jackpot" in reward_slug:
         return cheapest_building_stage_cost * 0.4
+    
+def _get_energy_from_reward_slug(
+    db: Session, user: User, reward_slug: Literal["energy_low", "energy_high"]
+) -> int:
+
+    if "low" in reward_slug:
+        return 1
+    elif "high" in reward_slug:
+        return 3
 
 
 def add_currency(
@@ -56,12 +65,17 @@ def add_currency(
 
         currency = prefix
 
-        amount = _get_coins_from_reward_slug(db=db, user=user, reward_slug=reward_slug)
+        if prefix == "coins":
+            amount = _get_coins_from_reward_slug(db=db, user=user, reward_slug=reward_slug)
+        elif prefix == "energy":
+            amount = _get_energy_from_reward_slug(db=db, user=user, reward_slug=reward_slug)
+    if prefix == "coins":
+        amount = amount * multiplier
 
-    amount = amount * multiplier
+    if reward_slug and not amount:
+        print("reward_slug", reward_slug)
     amount = int(amount)
     setattr(user.wallet, currency, getattr(user.wallet, currency) + (amount))
-    
 
     return {
         "reward_data": {"amount": amount, "currency": currency, "multiplier": multiplier},
