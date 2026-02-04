@@ -19,7 +19,7 @@ class Villages(Base):
     completion_reward_gems = Column(Integer, nullable=False, default=0)
     completion_reward_xp = Column(Integer, nullable=False, default=0)
     completion_reward_energy = Column(Integer, nullable=False, default=0)
-    item_slug = Column(String, ForeignKey("items.slug"), nullable=True)
+    completion_reward_item_slug = Column(String, ForeignKey("items.slug"), nullable=True)
 
     # timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())

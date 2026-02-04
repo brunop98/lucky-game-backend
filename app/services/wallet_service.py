@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import Literal
 
 from fastapi import HTTPException
@@ -9,7 +10,8 @@ from app.models.wallet import Wallet
 from app.services.boost_service import get_active_boost
 from app.services.village_service import get_next_cheaper_building_stage_cost
 
-
+MAX_ENERGY_COUNT = 10
+MAX_ENERGY_SECONDS = 600
 def _get_coins_from_reward_slug(
     db: Session, user: User, reward_slug: Literal["coins_low", "coins_high", "coins_jackpot"]
 ) -> int:
@@ -69,13 +71,16 @@ def add_currency(
             amount = _get_coins_from_reward_slug(db=db, user=user, reward_slug=reward_slug)
         elif prefix == "energy":
             amount = _get_energy_from_reward_slug(db=db, user=user, reward_slug=reward_slug)
-    if prefix == "coins":
+    if currency == "coins":
         amount = amount * multiplier
 
     if reward_slug and not amount:
         print("reward_slug", reward_slug)
     amount = int(amount)
+    
     setattr(user.wallet, currency, getattr(user.wallet, currency) + (amount))
+
+
 
     return {
         "reward_data": {"amount": amount, "currency": currency, "multiplier": multiplier},
@@ -95,4 +100,16 @@ def _deduce_currency(
 def get_wallet_by_user(db: Session, user: User) -> Wallet:
     print("user ", user)
     return
-    # return db.query(Wallet).filter(Wallet.user_id == user_id).first()
+
+def get_energy_data(db: Session, user: User) -> dict:
+    # TODO calcular e incrementar energia se necessário
+    
+    last_energy_at = user.wallet.last_energy_at
+    seconds_to_next_energy = MAX_ENERGY_SECONDS - (datetime.now() - last_energy_at).total_seconds()
+
+    return {
+        "energy": 4,
+        "last_energy_at": last_energy_at,
+        "completed_at": (last_energy_at + timedelta(seconds=seconds_to_next_energy)) if  user.wallet.energy >= 10 else None,
+        "max": user.wallet.energy >= 10
+    }

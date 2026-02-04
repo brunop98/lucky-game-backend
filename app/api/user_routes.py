@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 from app.core.deps import get_db
 from app.core.auth import get_current_user
 from app.models.user import User
-from app.schemas.user_schema import UserOut
+from app.schemas.user_schema import EnergyDataOut, UserOut
+from app.services.wallet_service import get_energy_data
 
 router = APIRouter(prefix="/user", tags=["user"])
 @router.get("")
@@ -20,7 +21,16 @@ def get_user(db: Session = Depends(get_db), current_user: User = Depends(get_cur
         "wallet": {
             "coins": current_user.wallet.coins,
             "gems": current_user.wallet.gems,
-            "energy": current_user.wallet.energy,
             "xp": current_user.wallet.xp
         } if current_user.wallet else None
     }
+
+@router.get("/energy")
+def get_energy(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> EnergyDataOut:
+    try:
+        energy_data = get_energy_data(db, current_user)
+        db.commit()
+        return energy_data
+    except HTTPException as e:
+        db.rollback()
+        raise

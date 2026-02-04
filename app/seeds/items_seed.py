@@ -32,6 +32,48 @@ def seed_items(db):
                 name="Item 3",
                 rarity=0.25,
             )
+
+            ,
+            Item(
+                id=4,
+                slug="itemVillage1",
+                image_url="https://example.com/item3.png",
+                model_url="https://example.com/item3.obj",
+                name="Item 3",
+                rarity=0.25,
+            ),
+            Item(
+                id=5,
+                slug="itemVillage2",
+                image_url="https://example.com/item3.png",
+                model_url="https://example.com/item3.obj",
+                name="Item 3",
+                rarity=0.25,
+            ),
+            Item(
+                id=6,
+                slug="itemVillage3",
+                image_url="https://example.com/item3.png",
+                model_url="https://example.com/item3.obj",
+                name="Item 3",
+                rarity=0.25,
+            ),
+            Item(
+                id=7,
+                slug="itemVillage4",
+                image_url="https://example.com/item3.png",
+                model_url="https://example.com/item3.obj",
+                name="Item 3",
+                rarity=0.25,
+            ),
+            Item(
+                id=8,
+                slug="itemVillage5",
+                image_url="https://example.com/item3.png",
+                model_url="https://example.com/item3.obj",
+                name="Item 3",
+                rarity=0.25,
+            )
         ]
 
         

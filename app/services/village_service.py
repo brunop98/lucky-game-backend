@@ -72,7 +72,7 @@ def get_actual_village(db: Session, user: User) -> dict:
             "coins": village.completion_reward_coins,
             "gems": village.completion_reward_gems,
             "energy": village.completion_reward_energy,
-            "item_id": village.completion_reward_item_id,
+            "item_slug": village.completion_reward_item_slug,
         },
         "buildings": buildings,
     }

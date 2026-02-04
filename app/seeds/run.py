@@ -9,9 +9,9 @@ from app.seeds.content_patches_seed import seed_patches
 def run_seeds():
     db = SessionLocal()
     try:
+        seed_items(db)
         seed_villages_and_buildings(db)
         seed_patches(db)
-        seed_items(db)
         
         print("✅✅✅ All seeds executed successfully")
     finally:

@@ -19,7 +19,7 @@ def seed_villages_and_buildings(db):
                 completion_reward_gems=5,
                 completion_reward_xp=200,
                 completion_reward_energy=10,
-                completion_reward_item_id=5,
+                completion_reward_item_slug="itemVillage1",
             ),
             Villages(
                 id=2,
@@ -29,7 +29,7 @@ def seed_villages_and_buildings(db):
                 completion_reward_gems=8,
                 completion_reward_xp=350,
                 completion_reward_energy=12,
-                completion_reward_item_id=1,
+                completion_reward_item_slug="itemVillage2",
             ),
             Villages(
                 id=3,
@@ -39,7 +39,7 @@ def seed_villages_and_buildings(db):
                 completion_reward_gems=12,
                 completion_reward_xp=550,
                 completion_reward_energy=15,
-                completion_reward_item_id=7,
+                completion_reward_item_slug="itemVillage3",
             ),
             Villages(
                 id=4,
@@ -49,7 +49,7 @@ def seed_villages_and_buildings(db):
                 completion_reward_gems=18,
                 completion_reward_xp=850,
                 completion_reward_energy=18,
-                completion_reward_item_id=8,
+                completion_reward_item_slug="itemVillage4",
             ),
             Villages(
                 id=5,
@@ -59,7 +59,7 @@ def seed_villages_and_buildings(db):
                 completion_reward_gems=25,
                 completion_reward_xp=1300,
                 completion_reward_energy=22,
-                completion_reward_item_id=9,
+                completion_reward_item_slug="itemVillage5",
             ),
         ]
 

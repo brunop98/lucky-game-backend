@@ -25,7 +25,7 @@ class Item(Base):
         String, nullable=False
     )  
     name = Column(String, nullable=False)
-    description = Column(String, nullable=False) 
+    description = Column(String, nullable=True) 
     rarity = Column(Float, nullable=False)
 
     drawn_available = Column(Boolean, nullable=False, default=True)
