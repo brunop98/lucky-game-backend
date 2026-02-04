@@ -13,7 +13,7 @@ from app.models.user import User
 from app.models.user_building import UserBuilding
 from app.services.boost_service import trigger_boost
 from app.services.items_service import add_item, user_has_item
-from app.services.wallet_service import add_currency, deduce_currency, get_wallet_by_user
+from app.services.wallet_service import add_currency, _deduce_currency, get_wallet_by_user
 
 ALLOWED_REWARD_FOCUS = {
     "rare_item",
@@ -191,7 +191,7 @@ def create_or_get_game(
     - goal_card == None → jogo de JACKPOT
     """
 
-    if user.wallet.energy < 1: # TODO testar
+    if user.wallet.energy < 1: 
         raise HTTPException(400, "Not enough energy") 
 
     if goal_card:
@@ -217,7 +217,7 @@ def create_or_get_game(
         item_slug=item_slug,
     )
 
-    deduce_currency(db, user, "energy", 1)
+    _deduce_currency(db, user, "energy", 1)
     db.commit()
 
     if existing:

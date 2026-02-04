@@ -38,7 +38,7 @@ def get_or_create_user(
             wallet = Wallet(user_id=user.id)
             db.add(wallet)
 
-            next_village(db, village_id=1, user_id=user.id)
+            next_village(db, village_id=1, user = user)
 
             db.commit()
         except Exception:

@@ -7,7 +7,7 @@ from app.models.user import User
 from app.schemas.user_schema import UserOut
 
 router = APIRouter(prefix="/user", tags=["user"])
-
+# TODO deixar todos os commits em routes, em todos os arquivos
 @router.get("")
 def get_user(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> UserOut:
     

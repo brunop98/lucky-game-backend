@@ -85,7 +85,7 @@ def add_currency(
     }
 
 
-def deduce_currency(
+def _deduce_currency(
     db: Session, user: User, currency: Literal["xp", "coins", "gems", "energy"], amount: int
 ):
     amount = int(amount)

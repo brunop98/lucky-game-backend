@@ -1,5 +1,6 @@
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
+from pydantic import NonNegativeInt
+from sqlalchemy.orm import Session, joinedload
 
 from app.models.building import Building
 from app.models.user import User
@@ -33,11 +34,7 @@ def get_actual_village(db: Session, user: User) -> dict:
     if not village:
         raise HTTPException(status_code=404, detail="Village not found")
 
-    user_buildings = (
-        db.query(UserBuilding)
-        .filter(UserBuilding.user_id == user.id)
-        .all()
-    )
+    user_buildings = db.query(UserBuilding).filter(UserBuilding.user_id == user.id).all()
 
     buildings = []
     for ub in user_buildings:
@@ -48,23 +45,25 @@ def get_actual_village(db: Session, user: User) -> dict:
             else None
         )
 
-        buildings.append({
-            "id": building.id,
-            "name": building.name,
-            "building_stages": building.building_stages,
-            "created_at": building.created_at,
-            "updated_at": building.updated_at,
-            "next_stage": {
-                "max": ub.current_stage >= building.building_stages,
-                "cost": next_stage_cost,
-            },
-            "user_building": {
-                "id": ub.id,
-                "current_stage": ub.current_stage,
-                "created_at": ub.created_at,
-                "updated_at": ub.updated_at,
+        buildings.append(
+            {
+                "id": building.id,
+                "name": building.name,
+                "building_stages": building.building_stages,
+                "created_at": building.created_at,
+                "updated_at": building.updated_at,
+                "next_stage": {
+                    "max": ub.current_stage >= building.building_stages,
+                    "cost": next_stage_cost,
+                },
+                "user_building": {
+                    "id": ub.id,
+                    "current_stage": ub.current_stage,
+                    "created_at": ub.created_at,
+                    "updated_at": ub.updated_at,
+                },
             }
-        })
+        )
     buildings = sorted(buildings, key=lambda x: x["id"])
     return {
         "id": village.id,
@@ -79,12 +78,30 @@ def get_actual_village(db: Session, user: User) -> dict:
     }
 
 
+def next_village(db: Session, village: Villages | int, user: User):
+    from app.services.wallet_service import add_currency
 
-def next_village(db: Session, village_id: int, user_id: int):
-    buildings = db.query(Building).filter(Building.village_id == village_id).all()
+    if isinstance(village, int):
+        village = db.query(Villages).filter(Villages.id == village).first()
+
+    if not village:
+        raise HTTPException(status_code=404, detail="Village not found")
+
+    next_village_id = village.id + 1
+
+    add_currency(db, user, "coins", village.completion_reward_coins)
+    add_currency(db, user, "gems", village.completion_reward_gems)
+    add_currency(db, user, "energy", village.completion_reward_energy)
+    add_currency(db, user, "xp", village.completion_reward_xp)
+    # TODO additem
+
+    buildings = db.query(Building).filter(Building.village_id == next_village_id).all()
 
     for building in buildings:
-        db.add(UserBuilding(user_id=user_id, building_id=building.id))
+        db.add(UserBuilding(user_id=user.id, building_id=building.id))
+
+    user.actual_village = next_village_id
+    # TODO: if all vilages are upgraded, reset or lock
 
     db.flush()
 
@@ -125,19 +142,31 @@ def get_next_cheaper_building_stage_cost(db: Session, user: User) -> int | None:
     return cheapest_value
 
 
+def _check_village_completion(db: Session, user: User):
+    user_buildings = (
+        db.query(UserBuilding)
+        .options(joinedload(UserBuilding.building))
+        .filter(UserBuilding.user_id == user.id)
+        .all()
+    )
+
+    if all(ub.current_stage >= ub.building.building_stages for ub in user_buildings):
+        return True
+
+    return False
+
+
 def upgrade_building(db: Session, user: User, building_id: int) -> UpdateBuildingOut:
-    from app.services.wallet_service import deduce_currency
+    from app.services.wallet_service import _deduce_currency
 
-    # TODO: add xp
-    # TODO: if all buildings are upgraded at the village, upgrade the village
-    # TODO: if all villages are upgraded, reset or lock
+    ub = (
+        db.query(UserBuilding)
+        .filter(UserBuilding.user_id == user.id, UserBuilding.building_id == building_id)
+        .first()
+    )
 
-    #TODO colocar esse todo em um lugar apropriado; energia de tempos em tempos
-
-    ub = db.query(UserBuilding).filter(
-        UserBuilding.user_id == user.id,
-        UserBuilding.building_id == building_id
-    ).first()
+    if not ub:
+        raise HTTPException(status_code=404, detail="User building not found")
 
     building = db.query(Building).filter(Building.id == building_id).first()
     village = db.query(Villages).filter(Villages.id == ub.building.village_id).first()
@@ -150,12 +179,18 @@ def upgrade_building(db: Session, user: User, building_id: int) -> UpdateBuildin
     if ub.current_stage < building.building_stages:
         ub.current_stage += 1
 
-    deduce_currency(db, user, "coins", stage_cost)
-    db.commit()
+    _deduce_currency(db, user, "coins", stage_cost)
 
+    # TODO colocar esse todo em um lugar apropriado; energia de tempos em tempos
+    #TODO add_currency(db, user, "xp", ??)
+    upgraded_village = False
+    if _check_village_completion(db, user):
+        next_village(db, village, user)
+        upgraded_village = True
+
+    db.commit()
     return {
         "message": "Building upgraded successfully",
         "cost": stage_cost,
+        "upgraded_village": upgraded_village,
     }
-
-
