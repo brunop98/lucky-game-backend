@@ -34,8 +34,7 @@ def add_item(
         raise HTTPException(400, "User already has item")
     user_item = UserItem(user_id=user.id, item_id=item.id, stack_size=stack_size)
     db.add(user_item)
-    db.commit()
-    db.refresh(user_item)
+    
 
     return {
         "reward_data": {

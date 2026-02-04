@@ -23,9 +23,9 @@ class Item(Base):
     image_url = Column(String, nullable=False)
     model_url = Column(
         String, nullable=False
-    )  # TODO dependendo de como forem referenciados os models, pode ser que essa coluna seja desnecessaria ou int, fk
+    )  
     name = Column(String, nullable=False)
-    # description = Column(String, nullable=False) #TODO consultar os macacos sobre existencia desse campo e estabelecer limites (null, max chars)
+    description = Column(String, nullable=True) 
     rarity = Column(Float, nullable=False)
 
     drawn_available = Column(Boolean, nullable=False, default=True)

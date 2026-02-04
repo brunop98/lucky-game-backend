@@ -22,3 +22,4 @@ class UpdateBuildingIn(BaseModel):
 class UpdateBuildingOut(BaseModel):
     message: str
     cost: NonNegativeInt
+    upgraded_village: bool

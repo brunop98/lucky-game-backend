@@ -14,8 +14,13 @@ router = APIRouter(prefix="/village", tags=["village"])
 def get_village(
     db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ) -> VillageOut:
-
-    return get_actual_village(db, current_user)
+    try:
+        actual_village = get_actual_village(db, current_user)
+        db.commit()
+        return actual_village
+    except HTTPException as e:
+        db.rollback()
+        raise
 
 @router.post("/update-building")
 def update_building(
@@ -23,4 +28,10 @@ def update_building(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return upgrade_building(db, current_user, payload.building_id)
+    try:
+        upgraded_building = upgrade_building(db, current_user, payload.building_id)
+        db.commit()
+        return upgraded_building
+    except HTTPException as e:
+        db.rollback()
+        raise

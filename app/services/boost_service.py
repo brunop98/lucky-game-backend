@@ -85,8 +85,7 @@ def _get_safe_xp_boost_accumulation_calc(
             source=new_user_boost.source,
         )
         db.add(boost)
-        db.commit()
-        db.refresh(boost)
+        
         return boost
 
     # 2️⃣ Boost pior ou igual e NÃO é jackpot → ignora
@@ -104,8 +103,7 @@ def _get_safe_xp_boost_accumulation_calc(
             source=new_user_boost.source,
         )
         db.add(boost)
-        db.commit()
-        db.refresh(boost)
+        
         return boost
 
     # 4️⃣ Mesmo multiplicador + jackpot → estende criando NOVO
@@ -122,8 +120,7 @@ def _get_safe_xp_boost_accumulation_calc(
             source=new_user_boost.source or "jackpot",
         )
         db.add(boost)
-        db.commit()
-        db.refresh(boost)
+        
         return boost
 
     return False
@@ -145,7 +142,6 @@ def trigger_boost(
             db, user, xp_multiplier, duration_seconds, source="card", boost_type=boost_type
         )
 
-        db.commit()
 
         safe_user_boost = _get_safe_xp_boost_accumulation_calc(
             db, user, user_boost, is_jackpot=reward_slug == "boost_jackpot"

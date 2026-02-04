@@ -13,7 +13,7 @@ from app.models.user import User
 from app.models.user_building import UserBuilding
 from app.services.boost_service import trigger_boost
 from app.services.items_service import add_item, user_has_item
-from app.services.wallet_service import add_currency, deduce_currency, get_wallet_by_user
+from app.services.wallet_service import add_currency, _deduce_currency, get_wallet_by_user
 
 ALLOWED_REWARD_FOCUS = {
     "rare_item",
@@ -82,7 +82,6 @@ def cancel_game_uuid(db: Session, user: User, game_uuid: UUID):
     db.query(CardHash).filter(CardHash.user_id == user.id, CardHash.id == game_uuid).update(
         {"canceled": True}
     )
-    db.commit()
     return
 
 
@@ -107,8 +106,6 @@ def _create_game(
     )
 
     db.add(card)
-    db.commit()
-    db.refresh(card)
 
     return card
 
@@ -191,7 +188,7 @@ def create_or_get_game(
     - goal_card == None → jogo de JACKPOT
     """
 
-    if user.wallet.energy < 1: # TODO testar
+    if user.wallet.energy < 1: 
         raise HTTPException(400, "Not enough energy") 
 
     if goal_card:
@@ -217,8 +214,7 @@ def create_or_get_game(
         item_slug=item_slug,
     )
 
-    deduce_currency(db, user, "energy", 1)
-    db.commit()
+    _deduce_currency(db, user, "energy", 1)
 
     if existing:
         return existing
@@ -270,7 +266,6 @@ def draw_card_weighted(
             if user_has_item(db, user, card_hash.item_slug):
                 card_hash.canceled = True
 
-                db.commit()
                 raise HTTPException(400, "User already has item")
 
             result = add_item(db, user, card_hash.item_slug)
@@ -287,6 +282,5 @@ def draw_card_weighted(
             result = add_currency(db, user, currency="energy", reward_slug=alternative_reward)
     
     # card_hash.used = True
-    db.commit()
 
     return result
