@@ -7,6 +7,7 @@ from app.models.user import User
 from app.models.user_building import UserBuilding
 from app.models.villages import Villages
 from app.schemas.village_schema import UpdateBuildingOut
+from app.services.items_service import add_item
 
 
 def get_building_stage_cost(db: Session, village: Villages, building: Building, stage: int) -> int:
@@ -93,9 +94,9 @@ def next_village(db: Session, village: Villages | int, user: User):
     add_currency(db, user, "gems", village.completion_reward_gems)
     add_currency(db, user, "energy", village.completion_reward_energy)
     add_currency(db, user, "xp", village.completion_reward_xp)
-    # TODO additem
+    add_item(db, user, village.completion_reward_item_slug) 
 
-    buildings = db.query(Building).filter(Building.village_id == next_village_id).all()
+    buildings = db.query(Building).filter(Building.village_id == village.id).all()
 
     for building in buildings:
         db.add(UserBuilding(user_id=user.id, building_id=building.id))
