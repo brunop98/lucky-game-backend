@@ -26,8 +26,13 @@ router = APIRouter(prefix="/cards", tags=["cards"])
 def cancel_game(
     game_uuid: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
-    cancel_game_uuid(db, current_user, game_uuid)
-    return {"message": "Game canceled", "game_uuid": game_uuid}
+    try:
+        cancel_game_uuid(db, current_user, game_uuid)
+        db.commit()
+        return {"message": "Game canceled", "game_uuid": game_uuid}
+    except HTTPException as e:
+        db.rollback()
+        raise
 
 
 @router.get("/new-game")
@@ -36,25 +41,36 @@ def new_game(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> NewGameOut:
-    game = create_or_get_game(
-        db=db,
-        user=current_user,
-        goal_card=query.goal_card,
-    )
+    try:
+        game = create_or_get_game(
+            db=db,
+            user=current_user,
+            goal_card=query.goal_card,
+        )
+        db.commit()
+        return {
+            "game_uuid": game.id,
+            "reward_focus": game.reward_focus,
+            "reward_probability": game.reward_probability,
+            "item_slug": game.item_slug,
+        }
 
-    return {
-        "game_uuid": game.id,
-        "reward_focus": game.reward_focus,
-        "reward_probability": game.reward_probability,
-        "item_slug": game.item_slug,
-    }
+    except HTTPException as e:
+        db.rollback()
+        raise
 
 
-@router.post("/reveal-card") 
+@router.post("/reveal-card")
 def reveal_card(
     payload: RevealCardIn,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return draw_card_weighted(db, current_user, payload.game_uuid)
-    # save current_user on db
+    try:
+        drawn_card = draw_card_weighted(db, current_user, payload.game_uuid)
+        db.commit()
+        return drawn_card 
+
+    except HTTPException as e:
+        db.rollback()
+        raise

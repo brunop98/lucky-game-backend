@@ -101,7 +101,9 @@ def next_village(db: Session, village: Villages | int, user: User):
         db.add(UserBuilding(user_id=user.id, building_id=building.id))
 
     user.actual_village = next_village_id
-    # TODO: if all vilages are upgraded, reset or lock
+    # TODO: if all vilages are upgraded, reset
+    # reset vai colocar um incremento nas formulas de ganhar moedas (direto em add_currency)
+    # reset vai zerar user_buildings, energy e coins, vai manter xp e gems
 
     db.flush()
 
@@ -188,7 +190,6 @@ def upgrade_building(db: Session, user: User, building_id: int) -> UpdateBuildin
         next_village(db, village, user)
         upgraded_village = True
 
-    db.commit()
     return {
         "message": "Building upgraded successfully",
         "cost": stage_cost,

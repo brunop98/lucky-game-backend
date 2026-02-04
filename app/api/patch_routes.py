@@ -13,4 +13,10 @@ def get_latest_patch(db: Session = Depends(get_db)) -> PatchLatestOut | None:
     Endpoint público.
     Retorna informações do último patch ativo.
     """
-    return get_active_patch(db)
+    try:
+        active_patch = get_active_patch(db)
+        db.commit()
+        return active_patch
+    except HTTPException as e:
+        db.rollback()
+        raise

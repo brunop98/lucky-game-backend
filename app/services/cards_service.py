@@ -82,7 +82,6 @@ def cancel_game_uuid(db: Session, user: User, game_uuid: UUID):
     db.query(CardHash).filter(CardHash.user_id == user.id, CardHash.id == game_uuid).update(
         {"canceled": True}
     )
-    db.commit()
     return
 
 
@@ -107,8 +106,6 @@ def _create_game(
     )
 
     db.add(card)
-    db.commit()
-    db.refresh(card)
 
     return card
 
@@ -218,7 +215,6 @@ def create_or_get_game(
     )
 
     _deduce_currency(db, user, "energy", 1)
-    db.commit()
 
     if existing:
         return existing
@@ -270,7 +266,6 @@ def draw_card_weighted(
             if user_has_item(db, user, card_hash.item_slug):
                 card_hash.canceled = True
 
-                db.commit()
                 raise HTTPException(400, "User already has item")
 
             result = add_item(db, user, card_hash.item_slug)
@@ -287,6 +282,5 @@ def draw_card_weighted(
             result = add_currency(db, user, currency="energy", reward_slug=alternative_reward)
     
     # card_hash.used = True
-    db.commit()
 
     return result

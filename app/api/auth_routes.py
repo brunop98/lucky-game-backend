@@ -11,7 +11,6 @@ from app.services.user_service import get_or_create_user
 router = APIRouter(prefix="/login", tags=["auth"])
 
 
-
 # ⚠️ DEV ONLY – remover em produção
 @router.post(
     "/dev",
@@ -21,25 +20,30 @@ router = APIRouter(prefix="/login", tags=["auth"])
     },
 )
 def dev_login(db: Session = Depends(get_db)) -> AuthOut:
-    user, wallet = get_or_create_user(
-        db=db,
-        auth_provider="dev",
-        provider_user_id="DEV_USER",
-        full_name="Dev User",
-        email=None,
-        locale="pt-BR",
-    )
+    # ⚠️ DEV ONLY
+    try:
+        user, wallet = get_or_create_user(
+            db=db,
+            auth_provider="dev",
+            provider_user_id="DEV_USER",
+            full_name="Dev User",
+            email=None,
+            locale="pt-BR",
+        )
 
-    token = create_access_token(user.id)
-
-    return {
-        "access_token": token,
-        "token_type": "bearer",
-        "user": {
-            "id": user.id,
-            "name": user.full_name,
-        },
-    }
+        token = create_access_token(user.id)
+        db.commit()
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "user": {
+                "id": user.id,
+                "name": user.full_name,
+            },
+        }
+    except HTTPException as e:
+        db.rollback()
+        raise
 
 
 @router.post(
@@ -54,35 +58,39 @@ def facebook_login(
     payload: FacebookLoginIn,
     db: Session = Depends(get_db),
 ) -> AuthOut:
-    access_token = payload.access_token
-    if not access_token:
-        raise HTTPException(status_code=400, detail="Token ausente")
+    try:
+        access_token = payload.access_token
+        if not access_token:
+            raise HTTPException(status_code=400, detail="Token ausente")
 
-    if not validate_facebook_token(access_token):
-        raise HTTPException(status_code=401, detail="Token inválido")
+        if not validate_facebook_token(access_token):
+            raise HTTPException(status_code=401, detail="Token inválido")
 
-    fb = get_facebook_user(access_token)
+        fb = get_facebook_user(access_token)
 
-    user, wallet = get_or_create_user(
-        db=db,
-        auth_provider="facebook",
-        provider_user_id=fb["id"],
-        full_name=fb["name"],
-        email=fb.get("email"),
-        picture_url=fb.get("picture", {}).get("data", {}).get("url"),
-        locale=None,
-    )
+        user, wallet = get_or_create_user(
+            db=db,
+            auth_provider="facebook",
+            provider_user_id=fb["id"],
+            full_name=fb["name"],
+            email=fb.get("email"),
+            picture_url=fb.get("picture", {}).get("data", {}).get("url"),
+            locale=None,
+        )
 
-    token = create_access_token(user.id)
-
-    return {
-        "access_token": token,
-        "token_type": "bearer",
-        "user": {
-            "id": user.id,
-            "name": user.full_name,
-        },
-    }
+        token = create_access_token(user.id)
+        db.commit()
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "user": {
+                "id": user.id,
+                "name": user.full_name,
+            },
+        }
+    except HTTPException as e:
+        db.rollback()
+        raise
 
 
 @router.post(
@@ -97,29 +105,35 @@ def google_login(
     payload: GoogleLoginIn,
     db: Session = Depends(get_db),
 ) -> AuthOut:
-    id_token = payload.id_token
-    if not id_token:
-        raise HTTPException(status_code=400, detail="Token ausente")
+    try:
+        id_token = payload.id_token
+        if not id_token:
+            raise HTTPException(status_code=400, detail="Token ausente")
 
-    google_user = validate_google_token(id_token)
+        google_user = validate_google_token(id_token)
 
-    user, wallet = get_or_create_user(
-        db=db,
-        auth_provider="google",
-        provider_user_id=google_user["sub"],
-        full_name=google_user["name"],
-        email=google_user.get("email"),
-        picture_url=google_user.get("picture"),
-        locale=google_user.get("locale"),
-    )
+        user, wallet = get_or_create_user(
+            db=db,
+            auth_provider="google",
+            provider_user_id=google_user["sub"],
+            full_name=google_user["name"],
+            email=google_user.get("email"),
+            picture_url=google_user.get("picture"),
+            locale=google_user.get("locale"),
+        )
 
-    token = create_access_token(user.id)
+        token = create_access_token(user.id)
 
-    return {
-        "access_token": token,
-        "token_type": "bearer",
-        "user": {
-            "id": user.id,
-            "name": user.full_name,
-        },
-    }
+        db.commit()
+
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "user": {
+                "id": user.id,
+                "name": user.full_name,
+            },
+        }
+    except HTTPException as e:
+        db.rollback()
+        raise
