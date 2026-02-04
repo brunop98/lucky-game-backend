@@ -130,6 +130,9 @@ def upgrade_building(db: Session, user: User, building_id: int) -> UpdateBuildin
 
     # TODO: add xp
     # TODO: if all buildings are upgraded at the village, upgrade the village
+    # TODO: if all villages are upgraded, reset or lock
+
+    #TODO colocar esse todo em um lugar apropriado; energia de tempos em tempos
 
     ub = db.query(UserBuilding).filter(
         UserBuilding.user_id == user.id,

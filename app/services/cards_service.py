@@ -191,6 +191,9 @@ def create_or_get_game(
     - goal_card == None → jogo de JACKPOT
     """
 
+    if user.wallet.energy < 1: # TODO testar
+        raise HTTPException(400, "Not enough energy") 
+
     if goal_card:
         reward_focus = "rare_item"
 
