@@ -9,7 +9,6 @@ from app.models.base import Base
 import app.models
 from app.seeds.run import run_seeds_if_enabled
 
-# TODO separar branchs dev,staging e main. só upar staging e main com pr
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
