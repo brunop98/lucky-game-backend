@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from requests import get
 from sqlalchemy.orm import Session
 
+from app.helpers.time import utcnow
 from app.models.user import User
 from app.models.wallet import Wallet
 from app.services.boost_service import get_active_boost
@@ -73,9 +74,9 @@ def add_currency(
             amount = _get_energy_from_reward_slug(db=db, user=user, reward_slug=reward_slug)
     if currency == "coins":
         amount = amount * multiplier
-
-    if reward_slug and not amount:
-        print("reward_slug", reward_slug)
+    if currency == "energy":
+        amount = min(amount, MAX_ENERGY_COUNT)
+    
     amount = int(amount)
     
     setattr(user.wallet, currency, getattr(user.wallet, currency) + (amount))
@@ -101,15 +102,45 @@ def get_wallet_by_user(db: Session, user: User) -> Wallet:
     print("user ", user)
     return
 
+def _calculate_energy_gain(last_energy_at: datetime) -> int:
+    elapsed_seconds = (utcnow() - last_energy_at).total_seconds()
+    return max(0, int(elapsed_seconds // MAX_ENERGY_SECONDS))
+
+def _apply_energy_regen(db: Session, user: User) -> None:
+    gained = _calculate_energy_gain(user.wallet.last_energy_at)
+
+    if gained <= 0:
+        return
+
+    missing = MAX_ENERGY_COUNT - user.wallet.energy
+    to_add = min(gained, missing)
+
+    if to_add <= 0:
+        return
+
+    add_currency(db, user, "energy", to_add)
+
+    user.wallet.last_energy_at += timedelta(
+        seconds=to_add * MAX_ENERGY_SECONDS
+    )
 def get_energy_data(db: Session, user: User) -> dict:
-    # TODO calcular e incrementar energia se necessário
-    
+    _apply_energy_regen(db, user)
+
+    now = utcnow()
     last_energy_at = user.wallet.last_energy_at
-    seconds_to_next_energy = MAX_ENERGY_SECONDS - (datetime.now() - last_energy_at).total_seconds()
+
+    elapsed = (now - last_energy_at).total_seconds()
+    seconds_to_next = max(0, MAX_ENERGY_SECONDS - elapsed)
+
+    completed_at = (
+        last_energy_at + timedelta(seconds=MAX_ENERGY_SECONDS)
+        if user.wallet.energy < MAX_ENERGY_COUNT
+        else None
+    )
 
     return {
-        "energy": 4,
+        "energy": user.wallet.energy,
         "last_energy_at": last_energy_at,
-        "completed_at": (last_energy_at + timedelta(seconds=seconds_to_next_energy)) if  user.wallet.energy >= 10 else None,
-        "max": user.wallet.energy >= 10
+        "completed_at": completed_at,
+        "max": user.wallet.energy >= MAX_ENERGY_COUNT
     }

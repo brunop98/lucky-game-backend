@@ -183,7 +183,6 @@ def upgrade_building(db: Session, user: User, building_id: int) -> UpdateBuildin
 
     _deduce_currency(db, user, "coins", stage_cost)
 
-    # TODO colocar esse todo em um lugar apropriado; energia de tempos em tempos
     #TODO add_currency(db, user, "xp", ??)
     upgraded_village = False
     if _check_village_completion(db, user):
