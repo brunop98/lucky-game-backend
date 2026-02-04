@@ -4,9 +4,10 @@ from datetime import datetime
 from app.schemas.wallet_schema import WalletOut
 
 class EnergyDataOut(BaseModel):
-    energy: NonNegativeInt
+    current_enernegy_count: NonNegativeInt
+    next_enernegy_count: NonNegativeInt
     last_energy_at: datetime
-    completed_at: datetime | None
+    will_complete_at: datetime | None
     max: bool
 
 class UserOut(BaseModel):

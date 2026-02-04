@@ -132,15 +132,16 @@ def get_energy_data(db: Session, user: User) -> dict:
     elapsed = (now - last_energy_at).total_seconds()
     seconds_to_next = max(0, MAX_ENERGY_SECONDS - elapsed)
 
-    completed_at = (
+    will_complete_at = (
         last_energy_at + timedelta(seconds=MAX_ENERGY_SECONDS)
         if user.wallet.energy < MAX_ENERGY_COUNT
         else None
     )
 
     return {
-        "energy": user.wallet.energy,
+        "current_enernegy_count": user.wallet.energy,
+        "next_enernegy_count": (user.wallet.energy + 1) if user.wallet.energy < MAX_ENERGY_COUNT else MAX_ENERGY_COUNT,
         "last_energy_at": last_energy_at,
-        "completed_at": completed_at,
+        "will_complete_at": will_complete_at,
         "max": user.wallet.energy >= MAX_ENERGY_COUNT
     }
