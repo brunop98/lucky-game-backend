@@ -74,6 +74,7 @@ def add_currency(
             amount = _get_energy_from_reward_slug(db=db, user=user, reward_slug=reward_slug)
     if currency == "coins":
         amount = amount * multiplier
+        # TODO reset multiplier
     if currency == "energy":
         amount = min(amount, MAX_ENERGY_COUNT)
     
