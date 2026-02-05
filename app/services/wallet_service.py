@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.helpers.time import utcnow
 from app.models.user import User
 from app.models.wallet import Wallet
-from app.services.boost_service import get_active_boost
+from app.services.boost_service import get_active_boost_multiplier
 from app.services.village_service import get_next_cheaper_building_stage_cost
 
 MAX_ENERGY_COUNT = 10
@@ -54,7 +54,7 @@ def add_currency(
     # ---
     multiplier = 1
 
-    active_boost = get_active_boost(db, user, boost_type=currency)
+    active_boost = get_active_boost_multiplier(db, user, boost_type=currency)
     if active_boost:
         multiplier = active_boost.multiplier
 

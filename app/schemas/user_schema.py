@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, NonNegativeInt, PositiveInt
+from pydantic import BaseModel, EmailStr, NonNegativeFloat, NonNegativeInt, PositiveInt
 from datetime import datetime
 
 from app.schemas.wallet_schema import WalletOut
@@ -9,6 +9,12 @@ class EnergyDataOut(BaseModel):
     last_energy_at: datetime
     will_complete_at: datetime | None
     max: bool
+class BoostDataOut(BaseModel):
+    boost_type: str
+    multiplier: NonNegativeFloat
+    starts_at: datetime
+    ends_at: datetime 
+    source: str | None
 
 class UserOut(BaseModel):
     full_name: str

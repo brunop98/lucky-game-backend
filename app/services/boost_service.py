@@ -160,7 +160,7 @@ def trigger_boost(
     }
 
 
-def get_active_boost(db: Session, user: User, boost_type=Literal["xp", "energy", "coins", "gems"]):
+def get_active_boost_multiplier(db: Session, user: User, boost_type=Literal["xp", "energy", "coins", "gems"]):
     active_boost = (
         db.query(UserBoost)
         .filter(UserBoost.user_id == user.id, UserBoost.boost_type == boost_type)
@@ -169,3 +169,26 @@ def get_active_boost(db: Session, user: User, boost_type=Literal["xp", "energy",
     )
     if active_boost and active_boost.ends_at > datetime.now(timezone.utc):
         return active_boost
+
+def get_active_boosts(db: Session, user: User):
+    boosts = (
+        db.query(UserBoost)
+        .filter(
+            UserBoost.user_id == user.id,
+            UserBoost.ends_at > datetime.now(timezone.utc)
+        )
+        .order_by(UserBoost.created_at.desc())
+        .all()
+    )
+
+    return [
+        {
+            "boost_type": b.boost_type,
+            "multiplier": b.multiplier,
+            "starts_at": b.starts_at,
+            "ends_at": b.ends_at,
+            "source": b.source,
+        }
+        for b in boosts
+    ]
+

@@ -26,5 +26,7 @@ class UserBoost(Base):
 
     __table_args__ = ({"sqlite_autoincrement": True},)
 
+
     user = relationship("User", back_populates="user_boost")
+    
 

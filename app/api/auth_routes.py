@@ -9,7 +9,7 @@ from app.services.auth_google import validate_google_token
 from app.services.user_service import get_or_create_user
 
 router = APIRouter(prefix="/login", tags=["auth"])
-
+#TODO fazer essa porra desse facebook e google funcionar no staging, caralho
 
 # ⚠️ DEV ONLY – remover em produção
 @router.post(
