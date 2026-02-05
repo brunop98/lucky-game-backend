@@ -7,6 +7,7 @@ from app.models.user import User
 from app.schemas.user_schema import BoostDataOut, EnergyDataOut, MultipliersOut, UserOut
 from app.services.boost_service import get_active_boosts
 from app.services.wallet_service import get_energy_data
+from app.services.xp_service import get_xp_data
 
 router = APIRouter(prefix="/user", tags=["user"])
 
@@ -15,7 +16,7 @@ router = APIRouter(prefix="/user", tags=["user"])
 def get_user(
     db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ) -> UserOut:
-
+    xp_data = get_xp_data(db, current_user)
     return {
         "full_name": current_user.full_name,
         "rank": current_user.rank,
@@ -26,8 +27,8 @@ def get_user(
         "wallet": {
             "coins": current_user.wallet.coins,
             "gems": current_user.wallet.gems,
-            "xp": current_user.wallet.xp,
         },
+        "xp": xp_data,
     }
 
 

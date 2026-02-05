@@ -4,7 +4,7 @@ from datetime import datetime
 from app.schemas.wallet_schema import WalletOut
 
 
-
+# MULTIPLIERS
 class BoostDataOut(BaseModel):
     boost_type: str
     multiplier: NonNegativeFloat
@@ -20,7 +20,7 @@ class MultipliersOut(BaseModel):
     reset: ResetDataOut
     boosts: list[BoostDataOut]
 
-
+# ENERGY
 class EnergyDataOut(BaseModel):
     current_enernegy_count: NonNegativeInt
     next_enernegy_count: NonNegativeInt
@@ -28,6 +28,12 @@ class EnergyDataOut(BaseModel):
     will_complete_at: datetime | None
     max: bool
 
+# USER
+class XpOut(BaseModel):
+    user_level: NonNegativeInt
+    current_xp: NonNegativeInt
+    xp_to_current_level: NonNegativeInt
+    xp_to_next_level: NonNegativeInt
 
 class UserOut(BaseModel):
     full_name: str
@@ -37,6 +43,7 @@ class UserOut(BaseModel):
     created_at: datetime
     updated_at: datetime | None     
     wallet: WalletOut
+    xp: XpOut
 
     class Config:
         from_attributes = True
