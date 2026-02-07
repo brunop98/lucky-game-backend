@@ -17,12 +17,9 @@ class Building(Base):
     cost_curve = Column(String, nullable=False, default="exponential")
     base_cost = Column(Integer, nullable=False)
     cost_multiplier = Column(Float, nullable=False, default=1.35)
-    # cost(stage) =
-    # round(
-    #     base_cost
-    #     × (cost_multiplier ^ (stage - 1))
-    #     × village_cost_modifier
-    # )
+
+    # xp
+    base_completion_reward_xp = Column(Integer, nullable=False, default=0)
 
     # timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())

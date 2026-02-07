@@ -15,51 +15,51 @@ def seed_villages_and_buildings(db):
                 id=1,
                 name="Vila Inicial",
                 building_cost_modifier=1.00,
-                completion_reward_coins=1500,
-                completion_reward_gems=5,
-                completion_reward_xp=200,
-                completion_reward_energy=10,
-                completion_reward_item_slug="itemVillage1",
+                starting_reward_coins=1500,
+                starting_reward_gems=1,
+                starting_reward_xp=150,
+                starting_reward_energy=10,
+                starting_reward_item_slug="itemVillage1",
             ),
             Villages(
                 id=2,
                 name="Vila Mercantil",
                 building_cost_modifier=1.15,
-                completion_reward_coins=2500,
-                completion_reward_gems=8,
-                completion_reward_xp=350,
-                completion_reward_energy=12,
-                completion_reward_item_slug="itemVillage2",
+                starting_reward_coins=2500,
+                starting_reward_gems=8,
+                starting_reward_xp=400,
+                starting_reward_energy=12,
+                starting_reward_item_slug="itemVillage2",
             ),
             Villages(
                 id=3,
                 name="Vila Real",
                 building_cost_modifier=1.30,
-                completion_reward_coins=4000,
-                completion_reward_gems=12,
-                completion_reward_xp=550,
-                completion_reward_energy=15,
-                completion_reward_item_slug="itemVillage3",
+                starting_reward_coins=4000,
+                starting_reward_gems=12,
+                starting_reward_xp=700,
+                starting_reward_energy=15,
+                starting_reward_item_slug="itemVillage3",
             ),
             Villages(
                 id=4,
                 name="Vila Imperial",
                 building_cost_modifier=1.45,
-                completion_reward_coins=6500,
-                completion_reward_gems=18,
-                completion_reward_xp=850,
-                completion_reward_energy=18,
-                completion_reward_item_slug="itemVillage4",
+                starting_reward_coins=6500,
+                starting_reward_gems=18,
+                starting_reward_xp=1100,
+                starting_reward_energy=18,
+                starting_reward_item_slug="itemVillage4",
             ),
             Villages(
                 id=5,
                 name="Capital Lendária",
-                building_cost_modifier=1.6,
-                completion_reward_coins=10000,
-                completion_reward_gems=25,
-                completion_reward_xp=1300,
-                completion_reward_energy=22,
-                completion_reward_item_slug="itemVillage5",
+                building_cost_modifier=1.60,
+                starting_reward_coins=10000,
+                starting_reward_gems=25,
+                starting_reward_xp=1700,
+                starting_reward_energy=22,
+                starting_reward_item_slug="itemVillage5",
             ),
         ]
 
@@ -68,6 +68,7 @@ def seed_villages_and_buildings(db):
 
         # =========================
         # BUILDINGS
+        # XP é por estágio (4 estágios)
         # =========================
         buildings = [
             # =========================
@@ -80,6 +81,7 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=300,
                 cost_multiplier=1.25,
+                base_completion_reward_xp=8,
             ),
             Building(
                 id=2,
@@ -88,6 +90,7 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=450,
                 cost_multiplier=1.28,
+                base_completion_reward_xp=10,
             ),
             Building(
                 id=3,
@@ -96,6 +99,7 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=650,
                 cost_multiplier=1.30,
+                base_completion_reward_xp=12,
             ),
             Building(
                 id=4,
@@ -104,7 +108,9 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=900,
                 cost_multiplier=1.35,
+                base_completion_reward_xp=16,
             ),  # âncora
+
             # =========================
             # VILA 2 — MERCANTIL
             # =========================
@@ -115,6 +121,7 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=900,
                 cost_multiplier=1.30,
+                base_completion_reward_xp=18,
             ),
             Building(
                 id=6,
@@ -123,6 +130,7 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=1200,
                 cost_multiplier=1.32,
+                base_completion_reward_xp=20,
             ),
             Building(
                 id=7,
@@ -131,6 +139,7 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=1500,
                 cost_multiplier=1.35,
+                base_completion_reward_xp=22,
             ),
             Building(
                 id=8,
@@ -139,7 +148,9 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=2000,
                 cost_multiplier=1.40,
+                base_completion_reward_xp=28,
             ),  # âncora
+
             # =========================
             # VILA 3 — REAL
             # =========================
@@ -150,6 +161,7 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=1800,
                 cost_multiplier=1.35,
+                base_completion_reward_xp=30,
             ),
             Building(
                 id=10,
@@ -158,6 +170,7 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=2400,
                 cost_multiplier=1.38,
+                base_completion_reward_xp=34,
             ),
             Building(
                 id=11,
@@ -166,6 +179,7 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=3200,
                 cost_multiplier=1.42,
+                base_completion_reward_xp=38,
             ),
             Building(
                 id=12,
@@ -174,7 +188,9 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=4200,
                 cost_multiplier=1.45,
+                base_completion_reward_xp=46,
             ),  # âncora
+
             # =========================
             # VILA 4 — IMPERIAL
             # =========================
@@ -185,6 +201,7 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=3000,
                 cost_multiplier=1.38,
+                base_completion_reward_xp=48,
             ),
             Building(
                 id=14,
@@ -192,7 +209,8 @@ def seed_villages_and_buildings(db):
                 name="Aqueduto",
                 building_stages=4,
                 base_cost=3600,
-                cost_multiplier=1.4,
+                cost_multiplier=1.40,
+                base_completion_reward_xp=52,
             ),
             Building(
                 id=15,
@@ -201,6 +219,7 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=4800,
                 cost_multiplier=1.42,
+                base_completion_reward_xp=58,
             ),
             Building(
                 id=16,
@@ -209,7 +228,9 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=6000,
                 cost_multiplier=1.48,
+                base_completion_reward_xp=68,
             ),  # âncora
+
             # =========================
             # VILA 5 — LENDÁRIA
             # =========================
@@ -220,6 +241,7 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=4500,
                 cost_multiplier=1.45,
+                base_completion_reward_xp=72,
             ),
             Building(
                 id=18,
@@ -228,6 +250,7 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=5500,
                 cost_multiplier=1.48,
+                base_completion_reward_xp=78,
             ),
             Building(
                 id=19,
@@ -235,7 +258,8 @@ def seed_villages_and_buildings(db):
                 name="Forja Lendária",
                 building_stages=4,
                 base_cost=7000,
-                cost_multiplier=1.5,
+                cost_multiplier=1.50,
+                base_completion_reward_xp=86,
             ),
             Building(
                 id=20,
@@ -244,13 +268,14 @@ def seed_villages_and_buildings(db):
                 building_stages=4,
                 base_cost=9000,
                 cost_multiplier=1.55,
+                base_completion_reward_xp=100,
             ),
         ]
 
         db.bulk_save_objects(buildings)
         db.commit()
 
-        print("✅ Villages and Building seeded successfully")
+        print("✅ Villages and Buildings seeded successfully")
 
     except Exception:
         db.rollback()

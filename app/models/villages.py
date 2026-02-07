@@ -15,11 +15,11 @@ class Villages(Base):
 
     # reward on completion of all buildings
 
-    completion_reward_coins = Column(Integer, nullable=False, default=0)
-    completion_reward_gems = Column(Integer, nullable=False, default=0)
-    completion_reward_xp = Column(Integer, nullable=False, default=0)
-    completion_reward_energy = Column(Integer, nullable=False, default=0)
-    completion_reward_item_slug = Column(String, ForeignKey("items.slug"), nullable=True)
+    starting_reward_coins = Column(Integer, nullable=False, default=0)
+    starting_reward_gems = Column(Integer, nullable=False, default=0)
+    starting_reward_xp = Column(Integer, nullable=False, default=0)
+    starting_reward_energy = Column(Integer, nullable=False, default=0)
+    starting_reward_item_slug = Column(String, ForeignKey("items.slug"), nullable=True)
 
     # timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())

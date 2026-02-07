@@ -51,3 +51,24 @@ def get_xp_data(db: Session, user: User):
         "xp_to_current_level": _xp_required_for_level(current_level),
         "xp_to_next_level": _xp_to_next_level(xp),
     }
+
+
+
+#TODO colocar todas essas constantes em um arquivo de config
+STAGE_GROWTH = 0.35
+
+def calculate_building_stage_xp(
+    base_xp: int,
+    stage_index: int,
+    stage_growth: float = 0.35,
+) -> int:
+    multiplier = 1 + ((stage_index - 1) * stage_growth)
+    return int(base_xp * multiplier)
+
+def calculate_building_stage_xp(
+    base_xp: int,
+    stage_index: int,
+    stage_growth: float = 0.35,
+) -> int:
+    multiplier = 1 + ((stage_index - 1) * stage_growth)
+    return int(base_xp * multiplier)

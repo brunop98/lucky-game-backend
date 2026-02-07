@@ -39,8 +39,8 @@ def get_or_create_user(
         user.wallet = wallet
         db.flush()
 
-
-        next_village(db, village=1, user=user)
+        print("CALLING next_village")
+        next_village(db,user=user)
 
     else:
         wallet = db.query(Wallet).filter(Wallet.user_id == user.id).first()
