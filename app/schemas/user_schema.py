@@ -13,11 +13,11 @@ class BoostDataOut(BaseModel):
     source: str | None
 
 class ResetDataOut(BaseModel):
-    multiplier: PositiveInt
-    reset_count: NonNegativeInt
+    coins_multiplier: PositiveInt
+    resets: NonNegativeInt
 
 class MultipliersOut(BaseModel):
-    reset: ResetDataOut
+    resets: ResetDataOut
     boosts: list[BoostDataOut]
 
 # ENERGY

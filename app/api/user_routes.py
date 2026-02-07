@@ -6,6 +6,7 @@ from app.core.auth import get_current_user
 from app.models.user import User
 from app.schemas.user_schema import BoostDataOut, EnergyDataOut, MultipliersOut, UserOut
 from app.services.boost_service import get_active_boosts
+from app.services.reset_service import get_reset_data
 from app.services.wallet_service import get_energy_data
 from app.services.xp_service import get_xp_data
 
@@ -51,9 +52,9 @@ def get_multipliers(
 ) -> MultipliersOut:
     try:
         boosts_data = get_active_boosts(db, current_user)
-        # TODO reset_data
+        reset_data = get_reset_data(db, current_user)
         db.commit()
-        return {"reset": {"multiplier": 1, "reset_count": 0}, "boosts": boosts_data}
+        return {"resets": reset_data, "boosts": boosts_data}
     except HTTPException as e:
         db.rollback()
         raise

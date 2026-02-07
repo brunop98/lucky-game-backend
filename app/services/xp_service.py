@@ -50,7 +50,6 @@ def get_xp_data(db: Session, user: User):
     }
 
 
-# TODO colocar todas essas constantes em um arquivo de config
 # TODO now() padronizado e blindado contra hackers
 
 

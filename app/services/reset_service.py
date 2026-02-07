@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 
+from app.api.config.game_consts import RESETS_COINS_MULTIPLIER_GROWTH
 from app.models.user import User
 from app.models.user_building import UserBuilding
 from app.models.villages import Villages
@@ -18,6 +19,7 @@ def reset_available(db: Session, user: User):
 
     return False
 
+
 def do_reset(db: Session, user: User):
     if not reset_available(db, user):
         return False
@@ -26,14 +28,18 @@ def do_reset(db: Session, user: User):
     user.wallet.energy = 0
 
     user.actual_village = 1
+    user.resets = user.resets + 1
     db.query(UserBuilding).filter(UserBuilding.user_id == user.id).delete(synchronize_session=False)
 
-    next_village(db,user=user)
+    next_village(db, user=user)
     return True
 
-# TODO: increment formulas in add_currency
+
+def get_reset_coins_multiplier(db: Session, user: User):
+    reset_count = user.resets
+    return 1 + (reset_count * RESETS_COINS_MULTIPLIER_GROWTH)
 
 
-
-
-
+def get_reset_data(db: Session, user: User):
+    multiplier = get_reset_coins_multiplier(db, user)
+    return {"resets": user.resets, "coins_multiplier": multiplier}

@@ -10,6 +10,7 @@ from app.helpers.time import utcnow
 from app.models.user import User
 from app.models.wallet import Wallet
 from app.services.boost_service import get_active_boost_multiplier
+from app.services.reset_service import get_reset_coins_multiplier
 from app.services.village_service import get_next_cheaper_building_stage_cost
 
 
@@ -74,8 +75,9 @@ def add_currency(
         elif prefix == "energy":
             amount = _get_energy_from_reward_slug(db=db, user=user, reward_slug=reward_slug)
     if currency == "coins":
-        amount = amount * multiplier
-        # TODO reset multiplier
+        reset_multiplier = get_reset_coins_multiplier(db, user)
+        amount = amount * multiplier * reset_multiplier
+        
     if currency == "energy":
         amount = min(amount, WALLET_MAX_ENERGY_COUNT)
 
