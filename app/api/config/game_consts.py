@@ -1,12 +1,11 @@
-#XP
 from datetime import timedelta
 
-
+# XP
 XP_BASE = 100
 XP_GROWTH = 1.15
 XP_BUILDINGS_STAGE_GROWTH = 0.35
 
-#BOOST
+# BOOST
 BOOST_XP_MULTIPLIERS = {
     "boost_low": {"multiplier": 1.3, "duration_seconds": 120},
     "boost_high": {"multiplier": 1.6, "duration_seconds": 210},
@@ -16,7 +15,7 @@ BOOST_XP_MULTIPLIERS = {
 BOOST_MAX_ACTIVE_MULTIPLIER = 2.5
 BOOST_MAX_DURATION = timedelta(minutes=12)
 
-#CARDS
+# CARDS
 CARDS_ALLOWED_REWARD_FOCUS = {
     "rare_item",
     "coins_jackpot",
@@ -33,15 +32,15 @@ CARDS_MIN_PROBABILITIES = {
 }
 
 CARDS_ALTERNATIVE_REWARDS_PROBABILITIES = {
-  "coins_low": 0.37,
-  "coins_high": 0.24,
-  "boost_low": 0.12,
-  "boost_high": 0.09,
-  "boost_jackpot": 0.04,
-  "energy_low": 0.10,
-  "energy_high": 0.04 
+    "coins_low": 0.37,
+    "coins_high": 0.24,
+    "boost_low": 0.12,
+    "boost_high": 0.09,
+    "boost_jackpot": 0.04,
+    "energy_low": 0.10,
+    "energy_high": 0.04,
 }
 
-#WALLET
+# WALLET
 WALLET_MAX_ENERGY_COUNT = 10
 WALLET_MAX_ENERGY_SECONDS = 600
