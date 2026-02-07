@@ -39,7 +39,6 @@ def get_or_create_user(
         user.wallet = wallet
         db.flush()
 
-        print("CALLING next_village")
         next_village(db,user=user)
 
     else:
