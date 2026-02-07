@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.api.config.game_consts import RESETS_COINS_MULTIPLIER_GROWTH
+from app.config.game_consts import RESETS_COINS_MULTIPLIER_GROWTH
 from app.models.user import User
 from app.models.user_building import UserBuilding
 from app.models.villages import Villages

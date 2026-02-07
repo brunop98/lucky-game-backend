@@ -1,8 +1,8 @@
 import math
+
 from sqlalchemy.orm import Session
 
-from app.api.config.game_consts import XP_BUILDINGS_STAGE_GROWTH, XP_BASE, XP_GROWTH
-from app.models import wallet
+from app.config.game_consts import XP_BASE, XP_BUILDINGS_STAGE_GROWTH, XP_GROWTH
 from app.models.user import User
 
 
@@ -48,8 +48,6 @@ def get_xp_data(db: Session, user: User):
         "xp_to_current_level": _xp_required_for_level(current_level),
         "xp_to_next_level": _xp_to_next_level(xp),
     }
-
-
 
 
 def calculate_building_stage_xp(

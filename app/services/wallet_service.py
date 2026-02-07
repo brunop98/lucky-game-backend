@@ -1,11 +1,9 @@
 from datetime import datetime, timedelta
 from typing import Literal
 
-from fastapi import HTTPException
-from requests import get
 from sqlalchemy.orm import Session
 
-from app.api.config.game_consts import WALLET_MAX_ENERGY_COUNT, WALLET_MAX_ENERGY_SECONDS
+from app.config.game_consts import WALLET_MAX_ENERGY_COUNT, WALLET_MAX_ENERGY_SECONDS
 from app.helpers.time_helper import utcnow
 from app.models.user import User
 from app.models.wallet import Wallet
@@ -47,6 +45,8 @@ def add_currency(
 
     # validations
     if not amount and not reward_slug:
+        if amount == 0:
+            return
         raise Exception("Amount or reward_slug must be provided")
     if amount and reward_slug:
         raise Exception("Amount and reward_slug cannot be provided together")
@@ -77,7 +77,7 @@ def add_currency(
     if currency == "coins":
         reset_multiplier = get_reset_coins_multiplier(db, user)
         amount = amount * multiplier * reset_multiplier
-        
+
     if currency == "energy":
         amount = min(amount, WALLET_MAX_ENERGY_COUNT)
 

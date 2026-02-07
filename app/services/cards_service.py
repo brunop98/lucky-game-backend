@@ -6,7 +6,12 @@ from uuid import UUID, uuid4
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.api.config.game_consts import CARDS_ALTERNATIVE_REWARDS_PROBABILITIES, CARDS_BASE_PROBABILITIES, CARDS_MIN_PROBABILITIES, CARDS_ALLOWED_REWARD_FOCUS
+from app.config.game_consts import (
+    CARDS_ALLOWED_REWARD_FOCUS,
+    CARDS_ALTERNATIVE_REWARDS_PROBABILITIES,
+    CARDS_BASE_PROBABILITIES,
+    CARDS_MIN_PROBABILITIES,
+)
 from app.models.building import Building
 from app.models.card_hash import CardHash
 from app.models.item import Item
@@ -14,7 +19,7 @@ from app.models.user import User
 from app.models.user_building import UserBuilding
 from app.services.boost_service import trigger_boost
 from app.services.items_service import add_item, user_has_item
-from app.services.wallet_service import add_currency, _deduce_currency, get_wallet_by_user
+from app.services.wallet_service import _deduce_currency, add_currency
 
 
 def sort_card(db: Session, user: User, game_data, card_hash):
@@ -234,8 +239,9 @@ def draw_card_weighted(
     focus_reward = card_hash.reward_focus
 
     result = None
+    is_coins_jackpot = False
 
-    won_focus_reward = random.random() < focus_reward_probability
+    won_focus_reward =random.random() < focus_reward_probability
     if won_focus_reward:
         if focus_reward == "rare_item":
             if user_has_item(db, user, card_hash.item_slug):
@@ -245,17 +251,20 @@ def draw_card_weighted(
 
             result = add_item(db, user, card_hash.item_slug)
         else:
+
             result = add_currency(db, user, currency="coins", reward_slug="coins_jackpot")
+            result["reward_data"]["is_jackpot"] = True
     else:
         alternative_reward = _draw_weighted()
 
         if "coins" in alternative_reward:
             result = add_currency(db, user, currency="coins", reward_slug=alternative_reward)
+            result["reward_data"]["is_jackpot"] = False
         elif "boost" in alternative_reward:
             result = trigger_boost(db, user, alternative_reward, boost_type="xp")
         elif "energy" in alternative_reward:
             result = add_currency(db, user, currency="energy", reward_slug=alternative_reward)
 
-    # card_hash.used = True
+    card_hash.used = True 
 
     return result

@@ -18,10 +18,8 @@ def user_has_item(
 ):
     try:
         hasItem = user_has_item_service(db, current_user, item_slug)
-        db.commit()
         return {
             "hasItem": hasItem,
         }
     except HTTPException as e:
-        db.rollback()
         raise
