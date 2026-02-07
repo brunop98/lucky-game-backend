@@ -1,6 +1,7 @@
 from sqlalchemy import Column, DateTime, Integer, String
-from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
+
+from app.helpers.time_helper import utcnow
 from app.models.base import Base
 
 
@@ -24,13 +25,13 @@ class User(Base):
     actual_village = Column(Integer, nullable=False, default=1)
     resets = Column(Integer, nullable=False, default=0)
 
-    #cards
+    # cards
     rare_item_miss_count = Column(Integer, nullable=False, default=0)
     last_jackpot_at = Column(DateTime(timezone=True), nullable=True)
 
     # timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), default=utcnow)
+    updated_at = Column(DateTime(timezone=True), onupdate=utcnow)
 
     user_building = relationship("UserBuilding", back_populates="user")
 

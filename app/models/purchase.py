@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.sql import func
+from app.helpers.time_helper import utcnow
 from app.models.base import Base
 
 class Purchase(Base):
@@ -13,5 +14,5 @@ class Purchase(Base):
     amount = Column(Integer)
     
     # timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), default=utcnow)
+    updated_at = Column(DateTime(timezone=True), onupdate=utcnow)

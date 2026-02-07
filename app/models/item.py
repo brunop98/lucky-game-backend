@@ -11,6 +11,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
+from app.helpers.time_helper import utcnow
 from app.models.base import Base
 
 
@@ -30,8 +31,8 @@ class Item(Base):
 
     drawn_available = Column(Boolean, nullable=False, default=True)
 
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), default=utcnow)
+    updated_at = Column(DateTime(timezone=True), onupdate=utcnow)
 
     user_item = relationship("UserItem", back_populates="item")
     card_hash = relationship("CardHash", back_populates="item")

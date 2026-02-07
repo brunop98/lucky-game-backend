@@ -1,7 +1,9 @@
-from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Integer, String
-from sqlalchemy.sql import func
+from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Integer
 from sqlalchemy.orm import relationship
+
+from app.helpers.time_helper import utcnow
 from app.models.base import Base
+
 
 class UserItem(Base):
     __tablename__ = "user_items"
@@ -14,20 +16,14 @@ class UserItem(Base):
     stack_size = Column(Integer, nullable=False, default=1)
 
     # timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), default=utcnow)
+    updated_at = Column(DateTime(timezone=True), onupdate=utcnow)
 
     __table_args__ = (
         CheckConstraint("stack_size > 0", name="ck_cards_stack_size_positive"),
         {"sqlite_autoincrement": True},
     )
 
-    user = relationship(
-        "User",
-        back_populates="user_item"
-    )
+    user = relationship("User", back_populates="user_item")
 
-    item = relationship(
-        "Item",
-        back_populates="user_item"
-    )
+    item = relationship("Item", back_populates="user_item")

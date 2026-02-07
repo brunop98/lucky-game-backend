@@ -1,7 +1,9 @@
-from sqlalchemy import Column, Integer, ForeignKey, DateTime
-from sqlalchemy.sql import func
+from sqlalchemy import Column, DateTime, ForeignKey, Integer
 from sqlalchemy.orm import relationship
+
+from app.helpers.time_helper import utcnow
 from app.models.base import Base
+
 
 class Wallet(Base):
     __tablename__ = "wallets"
@@ -13,15 +15,13 @@ class Wallet(Base):
     gems = Column(Integer, default=0)
     energy = Column(Integer, default=0)
 
-    last_energy_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    
-    
+    last_energy_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+
     # timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), default=utcnow)
+    updated_at = Column(DateTime(timezone=True), onupdate=utcnow)
 
     user = relationship("User", back_populates="wallet")
-
 
 
 # TODO RECOMPENSA DE AD

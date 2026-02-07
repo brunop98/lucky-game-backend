@@ -11,6 +11,7 @@ from sqlalchemy import (
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
+from app.helpers.time_helper import utcnow
 from app.models.base import Base
 import uuid
 
@@ -33,8 +34,8 @@ class CardHash(Base):
     canceled = Column(Boolean, nullable=False, default=False)
 
     # timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), default=utcnow)
+    updated_at = Column(DateTime(timezone=True), onupdate=utcnow)
 
     # relations
     user = relationship("User", back_populates="card_hash")

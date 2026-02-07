@@ -2,6 +2,7 @@ from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
+from app.helpers.time_helper import utcnow
 from app.models.base import Base
 
 
@@ -22,8 +23,9 @@ class Building(Base):
     base_completion_reward_xp = Column(Integer, nullable=False, default=0)
 
     # timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+    updated_at = Column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
 
     village = relationship("Villages", back_populates="building")
     user_building = relationship("UserBuilding", back_populates="building")

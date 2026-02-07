@@ -50,7 +50,6 @@ def get_xp_data(db: Session, user: User):
     }
 
 
-# TODO now() padronizado e blindado contra hackers
 
 
 def calculate_building_stage_xp(

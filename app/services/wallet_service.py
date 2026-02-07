@@ -6,7 +6,7 @@ from requests import get
 from sqlalchemy.orm import Session
 
 from app.api.config.game_consts import WALLET_MAX_ENERGY_COUNT, WALLET_MAX_ENERGY_SECONDS
-from app.helpers.time import utcnow
+from app.helpers.time_helper import utcnow
 from app.models.user import User
 from app.models.wallet import Wallet
 from app.services.boost_service import get_active_boost_multiplier

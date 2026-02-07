@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 from jose import jwt
 
+from app.helpers.time_helper import utcnow
+
 SECRET_KEY = "DEV_SECRET_CHANGE_IN_PROD"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 24
@@ -9,6 +11,6 @@ ACCESS_TOKEN_EXPIRE_HOURS = 24
 def create_access_token(user_id: int) -> str:
     payload = {
         "user_id": user_id,
-        "exp": datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
+        "exp": utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)

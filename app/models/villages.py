@@ -1,7 +1,7 @@
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
 
+from app.helpers.time_helper import utcnow
 from app.models.base import Base
 
 
@@ -22,7 +22,7 @@ class Villages(Base):
     starting_reward_item_slug = Column(String, ForeignKey("items.slug"), nullable=True)
 
     # timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), default=utcnow)
+    updated_at = Column(DateTime(timezone=True), onupdate=utcnow)
 
     building = relationship("Building", back_populates="village")
