@@ -22,6 +22,7 @@ class User(Base):
     # progression
     rank = Column(Integer, nullable=False, default=1)
     actual_village = Column(Integer, nullable=False, default=1)
+    resets = Column(Integer, nullable=False, default=0)
 
     #cards
     rare_item_miss_count = Column(Integer, nullable=False, default=0)

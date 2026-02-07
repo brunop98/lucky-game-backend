@@ -1,6 +1,4 @@
-from typing import Literal
 from fastapi import HTTPException
-from pydantic import NonNegativeInt
 from sqlalchemy.orm import Session, joinedload
 
 from app.models.building import Building
@@ -17,8 +15,10 @@ def get_building_stage_cost(db: Session, village: Villages, building: Building, 
     if not building:
         raise HTTPException(status_code=404, detail="Building not found in the specified village")
 
-    if stage < 1 or stage > building.building_stages:
+    if stage < 1:
         raise HTTPException(status_code=400, detail="Invalid building stage")
+    if stage > building.building_stages:
+        return None
 
     if building.cost_curve == "exponential":
         cost = round(
@@ -38,17 +38,15 @@ def get_next_stage_info(
     building: Building,
     current_stage: int,
 ):
-    is_max = current_stage >= building.building_stages
-
-    if is_max:
-        return {"max": True, "cost": None}
 
     cost = get_building_stage_cost(db, village, building, current_stage + 1)
 
-    return {"max": False, "cost": cost}
+    return {"max": False if cost else True, "cost": cost}
 
 
 def get_actual_village(db: Session, user: User) -> VillageOut:
+    from app.services.reset_service import reset_available
+
     village = db.query(Villages).filter(Villages.id == user.actual_village).first()
 
     if not village:
@@ -90,10 +88,11 @@ def get_actual_village(db: Session, user: User) -> VillageOut:
             "item_slug": village.starting_reward_item_slug,
         },
         buildings=buildings_out,
+        reset_available=reset_available(db, user),
     )
 
 
-def _get_next_village(db: Session, current_village: Villages | None = None) -> Villages | None:
+def get_next_village(db: Session, current_village: Villages | None = None) -> Villages | None:
     if current_village is None:
         return db.query(Villages).filter(Villages.id == 1).first()
 
@@ -107,18 +106,13 @@ def next_village(
 ):
     from app.services.wallet_service import add_currency
 
-    
-    
+    need_reset = False
 
-    next_village = _get_next_village(db, current_village)
+    next_village = get_next_village(db, current_village)
 
     if next_village is None:
-        # TODO: all villages upgraded → reset
-        # reset:
-        # - increment formulas in add_currency
-        # - reset user_buildings, energy, coins
-        # - keep xp and gems
-        pass
+        need_reset = True
+        return {"need_reset": need_reset}
 
     add_currency(db, user, "coins", next_village.starting_reward_coins)
     add_currency(db, user, "gems", next_village.starting_reward_gems)
@@ -135,11 +129,13 @@ def next_village(
     for building in buildings:
         db.add(UserBuilding(user_id=user.id, building_id=building.id))
 
-    next_village = _get_next_village(db, current_village)
+    next_village = get_next_village(db, current_village)
 
     user.actual_village = next_village.id
 
     db.flush()
+
+    return {"need_reset": need_reset}
 
 
 def get_next_cheaper_building_stage_cost(db: Session, user: User) -> int | None:
@@ -178,7 +174,7 @@ def get_next_cheaper_building_stage_cost(db: Session, user: User) -> int | None:
     return cheapest_value
 
 
-def _check_village_completion(db: Session, user: User):
+def check_village_completion(db: Session, user: User):
     user_buildings = (
         db.query(UserBuilding)
         .options(joinedload(UserBuilding.building))
@@ -208,6 +204,8 @@ def upgrade_building(db: Session, user: User, building_id: int) -> UpdateBuildin
     village = db.query(Villages).filter(Villages.id == ub.building.village_id).first()
 
     stage_cost = get_building_stage_cost(db, village, building, ub.current_stage + 1)
+    if not stage_cost:
+        raise HTTPException(status_code=400, detail="Building already at max stage")
 
     if user.wallet.coins < stage_cost:
         raise HTTPException(status_code=400, detail="Not enough coins to upgrade building")
@@ -219,15 +217,21 @@ def upgrade_building(db: Session, user: User, building_id: int) -> UpdateBuildin
 
     xp_to_add = calculate_building_stage_xp(building.base_completion_reward_xp, ub.current_stage)
     add_currency(db, user, "xp", xp_to_add)
+
     upgraded_village = False
-    if _check_village_completion(db, user):
-        next_village(db, user, village)
-        upgraded_village = True
+    need_reset = False
+
+    if check_village_completion(db, user):
+        _next_village = next_village(db, user, village)
+        need_reset = _next_village["need_reset"] | False
+        if not need_reset:
+            upgraded_village = True
 
     return {
         "message": "Building upgraded successfully",
         "cost": stage_cost,
-        "upgraded_village": upgraded_village,
         "xp_earned": xp_to_add,
         "building_current_stage": ub.current_stage,
+        "upgraded_village": upgraded_village,
+        "need_reset": need_reset,
     }

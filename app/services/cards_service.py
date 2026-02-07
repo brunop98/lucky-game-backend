@@ -6,6 +6,7 @@ from uuid import UUID, uuid4
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
+from app.api.config.game_consts import CARDS_ALTERNATIVE_REWARDS_PROBABILITIES, CARDS_BASE_PROBABILITIES, CARDS_MIN_PROBABILITIES, CARDS_ALLOWED_REWARD_FOCUS
 from app.models.building import Building
 from app.models.card_hash import CardHash
 from app.models.item import Item
@@ -14,32 +15,6 @@ from app.models.user_building import UserBuilding
 from app.services.boost_service import trigger_boost
 from app.services.items_service import add_item, user_has_item
 from app.services.wallet_service import add_currency, _deduce_currency, get_wallet_by_user
-
-ALLOWED_REWARD_FOCUS = {
-    "rare_item",
-    "coins_jackpot",
-}
-
-BASE_PROBABILITIES = {
-    "rare_item": 0.03,  # 3.0%
-    "coins_jackpot": 0.01,  # 1.0%
-}
-
-MIN_PROBABILITIES = {
-    "rare_item": 0.015,  # 1.5%
-    "coins_jackpot": 0.005,  # 0.5%
-}
-
-ALTERNATIVE_REWARDS_PROBABILITIES = {
-  "coins_low": 0.37,
-  "coins_high": 0.24,
-  "boost_low": 0.12,
-  "boost_high": 0.09,
-  "boost_jackpot": 0.04,
-  "energy_low": 0.10,
-  "energy_high": 0.04 
-}
-
 
 
 def sort_card(db: Session, user: User, game_data, card_hash):
@@ -138,10 +113,10 @@ def _get_reward_probability(
     Ex: 0.01 = 1%
     """
 
-    if reward_focus not in ALLOWED_REWARD_FOCUS:
+    if reward_focus not in CARDS_ALLOWED_REWARD_FOCUS:
         raise HTTPException(400, "Invalid reward focus")
 
-    base = BASE_PROBABILITIES[reward_focus]
+    base = CARDS_BASE_PROBABILITIES[reward_focus]
     probability = base
 
     # --------------------
@@ -162,7 +137,7 @@ def _get_reward_probability(
 
         if minutes < 30:
             # penalidade máxima = base - mínimo
-            max_penalty = base - MIN_PROBABILITIES["coins_jackpot"]
+            max_penalty = base - CARDS_MIN_PROBABILITIES["coins_jackpot"]
 
             # decaimento linear
             cooldown_penalty = max_penalty * ((30 - minutes) / 30)
@@ -171,7 +146,7 @@ def _get_reward_probability(
     # --------------------
     # Garantia de mínimo
     # --------------------
-    probability = max(probability, MIN_PROBABILITIES[reward_focus])
+    probability = max(probability, CARDS_MIN_PROBABILITIES[reward_focus])
 
     # arredondamento seguro (ex: 0.0075 → 0.75%)
     return round(probability, 4)
@@ -188,8 +163,8 @@ def create_or_get_game(
     - goal_card == None → jogo de JACKPOT
     """
 
-    if user.wallet.energy < 1: 
-        raise HTTPException(400, "Not enough energy") 
+    if user.wallet.energy < 1:
+        raise HTTPException(400, "Not enough energy")
 
     if goal_card:
         reward_focus = "rare_item"
@@ -228,13 +203,13 @@ def create_or_get_game(
 
 
 def _draw_weighted():
-    total = sum(ALTERNATIVE_REWARDS_PROBABILITIES.values())
+    total = sum(CARDS_ALTERNATIVE_REWARDS_PROBABILITIES.values())
 
     if not abs(total - 1.0) < 1e-6:
         raise ValueError(f"Probabilities must sum to 1.0, got {total}")
 
-    rewards = list(ALTERNATIVE_REWARDS_PROBABILITIES.keys())
-    weights = list(ALTERNATIVE_REWARDS_PROBABILITIES.values())
+    rewards = list(CARDS_ALTERNATIVE_REWARDS_PROBABILITIES.keys())
+    weights = list(CARDS_ALTERNATIVE_REWARDS_PROBABILITIES.values())
 
     return random.choices(rewards, weights=weights, k=1)[0]
 
@@ -280,7 +255,7 @@ def draw_card_weighted(
             result = trigger_boost(db, user, alternative_reward, boost_type="xp")
         elif "energy" in alternative_reward:
             result = add_currency(db, user, currency="energy", reward_slug=alternative_reward)
-    
+
     # card_hash.used = True
 
     return result

@@ -1,12 +1,9 @@
 import math
 from sqlalchemy.orm import Session
 
+from app.api.config.game_consts import XP_BUILDINGS_STAGE_GROWTH, XP_BASE, XP_GROWTH
 from app.models import wallet
 from app.models.user import User
-
-
-BASE_XP = 100
-GROWTH = 1.15
 
 
 def _xp_required_for_level(level: int) -> int:
@@ -15,7 +12,7 @@ def _xp_required_for_level(level: int) -> int:
 
     xp = 0
     for lvl in range(1, level):
-        xp += math.floor(BASE_XP * (GROWTH ** (lvl - 1)))
+        xp += math.floor(XP_BASE * (XP_GROWTH ** (lvl - 1)))
 
     return xp
 
@@ -25,7 +22,7 @@ def _level_from_xp(total_xp: int) -> int:
     xp_accumulated = 0
 
     while True:
-        xp_for_next = math.floor(BASE_XP * (GROWTH ** (level - 1)))
+        xp_for_next = math.floor(XP_BASE * (XP_GROWTH ** (level - 1)))
 
         if total_xp < xp_accumulated + xp_for_next:
             return level
@@ -39,7 +36,7 @@ def _xp_to_next_level(total_xp: int) -> int:
 
     xp_next_level_start = _xp_required_for_level(level + 1)
 
-    return xp_next_level_start 
+    return xp_next_level_start
 
 
 def get_xp_data(db: Session, user: User):
@@ -53,22 +50,23 @@ def get_xp_data(db: Session, user: User):
     }
 
 
+# TODO colocar todas essas constantes em um arquivo de config
+# TODO now() padronizado e blindado contra hackers
 
-#TODO colocar todas essas constantes em um arquivo de config
-STAGE_GROWTH = 0.35
 
 def calculate_building_stage_xp(
     base_xp: int,
     stage_index: int,
-    stage_growth: float = 0.35,
+    stage_growth: float = XP_BUILDINGS_STAGE_GROWTH,
 ) -> int:
     multiplier = 1 + ((stage_index - 1) * stage_growth)
     return int(base_xp * multiplier)
 
+
 def calculate_building_stage_xp(
     base_xp: int,
     stage_index: int,
-    stage_growth: float = 0.35,
+    stage_growth: float = XP_BUILDINGS_STAGE_GROWTH,
 ) -> int:
     multiplier = 1 + ((stage_index - 1) * stage_growth)
     return int(base_xp * multiplier)

@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 from app.models.wallet import Wallet
 from app.services.village_service import next_village
-from app.services.wallet_service import MAX_ENERGY_COUNT 
 
 
 

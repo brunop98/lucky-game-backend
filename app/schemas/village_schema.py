@@ -41,6 +41,7 @@ class CompletionRewardOut(BaseModel):
 class VillageOut(BaseModel):
     id: int
     name: str
+    reset_available: bool
     completion_reward: CompletionRewardOut
     buildings: list[BuildingOut]
 

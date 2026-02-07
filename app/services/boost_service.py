@@ -3,24 +3,18 @@ from typing import Literal
 
 from requests import Session
 
+from app.api.config.game_consts import BOOST_MAX_ACTIVE_MULTIPLIER, BOOST_MAX_DURATION, BOOST_XP_MULTIPLIERS
 from app.models.user import User
 from app.models.user_boost import UserBoost
 
-XP_MULTIPLIERS = {
-    "boost_low": {"multiplier": 1.3, "duration_seconds": 120},
-    "boost_high": {"multiplier": 1.6, "duration_seconds": 210},
-    "boost_jackpot": {"multiplier": 2.2, "duration_seconds": 420},
-}
 
-MAX_BOOST_ACTIVE_MULTIPLIER = 2.5
-MAX_BOOST_DURATION = timedelta(minutes=12)
 
 
 def _get_xp_data(reward_slug: Literal["boost_low", "boost_high", "boost_jackpot"]):
 
     return {
-        "multiplier": XP_MULTIPLIERS[reward_slug]["multiplier"],
-        "duration_seconds": XP_MULTIPLIERS[reward_slug]["duration_seconds"],
+        "multiplier": BOOST_XP_MULTIPLIERS[reward_slug]["multiplier"],
+        "duration_seconds": BOOST_XP_MULTIPLIERS[reward_slug]["duration_seconds"],
     }
 
 
@@ -67,12 +61,12 @@ def _get_safe_xp_boost_accumulation_calc(
     )
 
     # aplica cap de multiplicador
-    safe_multiplier = min(new_user_boost.multiplier, MAX_BOOST_ACTIVE_MULTIPLIER)
+    safe_multiplier = min(new_user_boost.multiplier, BOOST_MAX_ACTIVE_MULTIPLIER)
 
     # calcula duração segura
     new_user_boost_duration: timedelta = new_user_boost.ends_at - new_user_boost.starts_at
     requested_duration = new_user_boost_duration
-    safe_duration = min(requested_duration, MAX_BOOST_DURATION)
+    safe_duration = min(requested_duration, BOOST_MAX_DURATION)
 
     # 1️⃣ Nenhum boost ativo → cria direto
     if not last_boost:
@@ -109,7 +103,7 @@ def _get_safe_xp_boost_accumulation_calc(
     # 4️⃣ Mesmo multiplicador + jackpot → estende criando NOVO
     if safe_multiplier == last_boost.multiplier and is_jackpot:
         remaining = last_boost.ends_at - now
-        extended = min(remaining + safe_duration, MAX_BOOST_DURATION)
+        extended = min(remaining + safe_duration, BOOST_MAX_DURATION)
 
         boost = UserBoost(
             user_id=user.id,

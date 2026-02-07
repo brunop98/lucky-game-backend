@@ -17,7 +17,7 @@ def seed_villages_and_buildings(db):
                 building_cost_modifier=1.00,
                 starting_reward_coins=1500,
                 starting_reward_gems=1,
-                starting_reward_xp=150,
+                starting_reward_xp=0,
                 starting_reward_energy=10,
                 starting_reward_item_slug="itemVillage1",
             ),
