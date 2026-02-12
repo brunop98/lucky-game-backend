@@ -33,15 +33,20 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), default=utcnow)
     updated_at = Column(DateTime(timezone=True), onupdate=utcnow)
 
-    user_building = relationship("UserBuilding", back_populates="user")
+    user_building = relationship("UserBuilding", back_populates="user",cascade="all, delete-orphan",
+        passive_deletes=True,)
 
-    user_item = relationship("UserItem", back_populates="user")
+    user_item = relationship("UserItem", back_populates="user",cascade="all, delete-orphan",
+        passive_deletes=True,)
 
-    user_boost = relationship("UserBoost", back_populates="user")
+    user_boost = relationship("UserBoost", back_populates="user",cascade="all, delete-orphan",
+        passive_deletes=True,)
 
-    card_hash = relationship("CardHash", back_populates="user")
+    card_hash = relationship("CardHash", back_populates="user",cascade="all, delete-orphan",
+        passive_deletes=True,)
 
-    wallet = relationship("Wallet", back_populates="user", uselist=False, lazy="joined")
+    wallet = relationship("Wallet", back_populates="user",cascade="all, delete-orphan",
+        passive_deletes=True, uselist=False, lazy="joined",)
 
     __table_args__ = (
         # garante unicidade por provider

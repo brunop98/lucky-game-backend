@@ -44,3 +44,6 @@ def get_or_create_user(
         wallet = db.query(Wallet).filter(Wallet.user_id == user.id).first()
 
     return user, wallet
+
+def delete_current_user (db: Session, user: User):
+    db.delete(user)

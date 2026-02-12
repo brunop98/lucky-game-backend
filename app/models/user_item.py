@@ -10,7 +10,7 @@ class UserItem(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     item_id = Column(Integer, ForeignKey("items.id"), nullable=False)
 
     stack_size = Column(Integer, nullable=False, default=1)

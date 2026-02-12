@@ -11,7 +11,7 @@ class UserBoost(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     boost_type = Column(String, nullable=False)
     multiplier = Column(Float, nullable=False)

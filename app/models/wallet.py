@@ -8,7 +8,7 @@ from app.models.base import Base
 class Wallet(Base):
     __tablename__ = "wallets"
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True)
 
     xp = Column(Integer, default=0)
     coins = Column(Integer, default=0)
@@ -23,6 +23,7 @@ class Wallet(Base):
 
     user = relationship("User", back_populates="wallet")
 
+#TODO reset multiem jackpot ou direto no addcurr
 
 # TODO RECOMPENSA DE AD
 # o que eu recebo
