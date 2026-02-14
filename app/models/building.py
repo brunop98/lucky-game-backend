@@ -29,3 +29,4 @@ class Building(Base):
 
     village = relationship("Villages", back_populates="building")
     user_building = relationship("UserBuilding", back_populates="building")
+    building_upgrade_history = relationship("BuildingUpgradeHistory", back_populates="building")

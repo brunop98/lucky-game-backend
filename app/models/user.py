@@ -2,6 +2,7 @@ from sqlalchemy import Column, DateTime, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.helpers.time_helper import utcnow
+from app.models import building_upgrade_history, wallet_transaction
 from app.models.base import Base
 
 
@@ -43,10 +44,16 @@ class User(Base):
         passive_deletes=True,)
 
     card_hash = relationship("CardHash", back_populates="user",cascade="all, delete-orphan",
+        passive_deletes=True,) 
+    
+    wallet_transactions = relationship("WalletTransaction", back_populates="user",cascade="all, delete-orphan",
         passive_deletes=True,)
 
     wallet = relationship("Wallet", back_populates="user",cascade="all, delete-orphan",
         passive_deletes=True, uselist=False, lazy="joined",)
+    
+    building_upgrade_history = relationship("BuildingUpgradeHistory", back_populates="user",cascade="all, delete-orphan",
+        passive_deletes=True,)
 
     __table_args__ = (
         # garante unicidade por provider

@@ -2,6 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session, joinedload
 
 from app.models.building import Building
+from app.models.building_upgrade_history import BuildingUpgradeHistory
 from app.models.user import User
 from app.models.user_building import UserBuilding
 from app.models.villages import Villages
@@ -189,7 +190,7 @@ def check_village_completion(db: Session, user: User):
 
 
 def upgrade_building(db: Session, user: User, building_id: int) -> UpdateBuildingOut:
-    from app.services.wallet_service import _deduce_currency, add_currency
+    from app.services.wallet_service import deduce_currency, add_currency
 
     ub = (
         db.query(UserBuilding)
@@ -213,7 +214,7 @@ def upgrade_building(db: Session, user: User, building_id: int) -> UpdateBuildin
     if ub.current_stage < building.building_stages:
         ub.current_stage += 1
 
-    _deduce_currency(db, user, "coins", stage_cost)
+    deduce_currency(db, user, "coins", stage_cost)
 
     xp_to_add = calculate_building_stage_xp(building.base_completion_reward_xp, ub.current_stage)
     add_currency(db, user, "xp", xp_to_add)
@@ -226,6 +227,15 @@ def upgrade_building(db: Session, user: User, building_id: int) -> UpdateBuildin
         need_reset = _next_village["need_reset"] | False
         if not need_reset:
             upgraded_village = True
+
+    building_upgrade_history = BuildingUpgradeHistory(
+        user_id=user.id,
+        village_id=village.id,
+        building_id=building.id,
+        new_building_stage=ub.current_stage,
+    )
+
+    db.add(building_upgrade_history)
 
     return {
         "message": "Building upgraded successfully",

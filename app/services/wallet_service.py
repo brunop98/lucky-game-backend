@@ -5,8 +5,10 @@ from sqlalchemy.orm import Session
 
 from app.config.game_consts import WALLET_MAX_ENERGY_COUNT, WALLET_MAX_ENERGY_SECONDS
 from app.helpers.time_helper import utcnow
+from app.models import wallet_transaction
 from app.models.user import User
 from app.models.wallet import Wallet
+from app.models.wallet_transaction import WalletTransaction
 from app.services.boost_service import get_active_boost_multiplier
 from app.services.reset_service import get_reset_coins_multiplier
 from app.services.village_service import get_next_cheaper_building_stage_cost
@@ -85,6 +87,15 @@ def add_currency(
 
     setattr(user.wallet, currency, getattr(user.wallet, currency) + (amount))
 
+    wallet_transaction = WalletTransaction(
+        user_id=user.id,
+        type="earn",
+        amount=amount,
+        balance_after=getattr(user.wallet, currency),
+        currency=currency,
+    )
+    db.add(wallet_transaction)
+
     return {
         "reward_data": {"amount": amount, "currency": currency, "multiplier": multiplier},
         "received_at": user.wallet.updated_at,
@@ -93,11 +104,19 @@ def add_currency(
     }
 
 
-def _deduce_currency(
+def deduce_currency(
     db: Session, user: User, currency: Literal["xp", "coins", "gems", "energy"], amount: int
 ):
     amount = int(amount)
     setattr(user.wallet, currency, getattr(user.wallet, currency) - (amount))
+    wallet_transaction = WalletTransaction(
+        user_id=user.id,
+        type="spend",
+        amount=amount,
+        balance_after=getattr(user.wallet, currency),
+        currency=currency,
+    )
+    db.add(wallet_transaction)
 
 
 def get_wallet_by_user(db: Session, user: User) -> Wallet:
@@ -107,7 +126,12 @@ def get_wallet_by_user(db: Session, user: User) -> Wallet:
 
 def _calculate_energy_gain(last_energy_at: datetime) -> int:
     elapsed_seconds = (utcnow() - last_energy_at).total_seconds()
-    return max(0, int(elapsed_seconds // WALLET_MAX_ENERGY_SECONDS))
+    energy_gain = max(0, int(elapsed_seconds // WALLET_MAX_ENERGY_SECONDS))
+    print("last_energy_at", last_energy_at)
+    print("utcnow()", utcnow())
+    print("elapsed_seconds", elapsed_seconds)
+    print("energy_gain", energy_gain)
+    return energy_gain
 
 
 def _apply_energy_regen(db: Session, user: User) -> None:
@@ -124,7 +148,7 @@ def _apply_energy_regen(db: Session, user: User) -> None:
 
     add_currency(db, user, "energy", to_add)
 
-    user.wallet.last_energy_at += timedelta(seconds=to_add * WALLET_MAX_ENERGY_SECONDS)
+    user.wallet.last_energy_at = utcnow()
 
 
 def get_energy_data(db: Session, user: User) -> dict:

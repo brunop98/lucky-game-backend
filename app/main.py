@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from app.api.router import api_router
 from app.core.database import engine  # ou onde o engine está hoje
 from app.core.version_middleware import VersionMiddleware
+from app.helpers.time_helper import dev_reset_extra_minutes
 from app.models.base import Base
 import app.models
 from app.seeds.run import run_seeds_if_enabled
@@ -14,6 +15,7 @@ async def lifespan(app: FastAPI):
     try:
         Base.metadata.create_all(bind=engine)  # 👈 AQUI
         run_seeds_if_enabled()
+        dev_reset_extra_minutes()
     except Exception as e:
         print("Startup failed:", e)
 

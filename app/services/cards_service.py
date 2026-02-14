@@ -4,6 +4,7 @@ from typing import Literal
 from uuid import UUID, uuid4
 
 from fastapi import HTTPException
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from app.config.game_consts import (
@@ -19,7 +20,7 @@ from app.models.user import User
 from app.models.user_building import UserBuilding
 from app.services.boost_service import trigger_boost
 from app.services.items_service import add_item, user_has_item
-from app.services.wallet_service import _deduce_currency, add_currency
+from app.services.wallet_service import deduce_currency, add_currency, get_energy_data
 
 
 def sort_card(db: Session, user: User, game_data, card_hash):
@@ -167,9 +168,10 @@ def create_or_get_game(
     - goal_card != None → jogo de ITEM
     - goal_card == None → jogo de JACKPOT
     """
-
+    energy_data = get_energy_data(db, user)
     if user.wallet.energy < 1:
-        raise HTTPException(400, "Not enough energy")
+
+        raise HTTPException(status_code=400, detail="Not enough energy")
 
     if goal_card:
         reward_focus = "rare_item"
@@ -194,7 +196,7 @@ def create_or_get_game(
         item_slug=item_slug,
     )
 
-    _deduce_currency(db, user, "energy", 1)
+    deduce_currency(db, user, "energy", 1)
 
     if existing:
         return existing
@@ -241,7 +243,7 @@ def draw_card_weighted(
     result = None
     is_coins_jackpot = False
 
-    won_focus_reward =random.random() < focus_reward_probability
+    won_focus_reward = random.random() < focus_reward_probability
     if won_focus_reward:
         if focus_reward == "rare_item":
             if user_has_item(db, user, card_hash.item_slug):
@@ -265,6 +267,6 @@ def draw_card_weighted(
         elif "energy" in alternative_reward:
             result = add_currency(db, user, currency="energy", reward_slug=alternative_reward)
 
-    card_hash.used = True 
+    card_hash.used = True
 
     return result

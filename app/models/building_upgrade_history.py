@@ -7,21 +7,23 @@ from app.helpers.time_helper import utcnow
 from app.models.base import Base
 
 
-class WalletTransaction(Base):
-    __tablename__ = "wallet_transactions"
+class BuildingUpgradeHistory(Base):
+    __tablename__ = "building_upgrade_history"
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    type = Column(String)  # earn | spend
-    amount = Column(Integer)
-    balance_after = Column(Integer)
-    currency = Column(String)
+    village_id = Column(Integer, ForeignKey("villages.id")) 
+    building_id = Column(Integer, ForeignKey("buildings.id"))
+    new_building_stage = Column(Integer)
 
     # timestamps
     created_at = Column(DateTime(timezone=True), default=utcnow)
     updated_at = Column(DateTime(timezone=True), onupdate=utcnow)
 
-    user = relationship("User", back_populates="wallet_transactions") 
+    user = relationship("User", back_populates="building_upgrade_history") 
+    village = relationship("Villages", back_populates="building_upgrade_history")
+    building = relationship("Building", back_populates="building_upgrade_history") 
+
 
     __table_args__ = (
         # garante unicidade por provider

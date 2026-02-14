@@ -26,3 +26,4 @@ class Villages(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=utcnow)
 
     building = relationship("Building", back_populates="village")
+    building_upgrade_history = relationship("BuildingUpgradeHistory", back_populates="village")
