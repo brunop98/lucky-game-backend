@@ -29,7 +29,7 @@ def update_building(
     payload: UpdateBuildingIn,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-)->UpgradeBuildingOut:
+):#->UpgradeBuildingOut:
     try:
         upgraded_building = upgrade_building(db, current_user, payload.building_id)
         db.commit()

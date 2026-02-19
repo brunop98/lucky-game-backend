@@ -4,21 +4,21 @@ from pathlib import Path
 
 FILE = Path("dev_time.json") 
 
-def dev_get_extra_minutes():
+def dev_get_extra_seconds():
     if not FILE.exists():
         return 0
-    return json.loads(FILE.read_text()).get("minutes", 0)
+    return json.loads(FILE.read_text()).get("seconds", 0)
 
-def dev_add_minutes(minutes: int):
-    current = dev_get_extra_minutes()
-    FILE.write_text(json.dumps({"minutes": current + minutes}))
+def dev_add_seconds(seconds: int):
+    current = dev_get_extra_seconds()
+    FILE.write_text(json.dumps({"seconds": current + seconds}))
 
-def dev_reset_extra_minutes():
+def dev_reset_extra_seconds():
     if not FILE.exists():
         with open(FILE, "w") as f:
             f.write("")
-    FILE.write_text(json.dumps({"minutes": 0}))
+    FILE.write_text(json.dumps({"seconds": 0}))
 
 def utcnow() -> datetime:
-    dev_extra_time_minutes = dev_get_extra_minutes()
-    return datetime.now(timezone.utc) + timedelta(minutes=dev_extra_time_minutes)
+    dev_extra_time_seconds = dev_get_extra_seconds()
+    return datetime.now(timezone.utc) + timedelta(seconds=dev_extra_time_seconds)

@@ -11,7 +11,7 @@ class Villages(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
 
-    building_cost_modifier = Column(Float, nullable=False, default=1.0)
+    # building_cost_modifier = Column(Float, nullable=False, default=1.0)
 
     # reward on completion of all buildings
 

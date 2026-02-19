@@ -1,4 +1,6 @@
-from pydantic import BaseModel, EmailStr, NonNegativeFloat, NonNegativeInt, PositiveInt
+from typing import Optional
+from click import Option
+from pydantic import BaseModel, EmailStr, NonNegativeFloat, NonNegativeInt, PositiveFloat, PositiveInt
 from datetime import datetime
 
 from app.schemas.wallet_schema import WalletOut
@@ -13,7 +15,7 @@ class BoostDataOut(BaseModel):
     source: str | None
 
 class ResetDataOut(BaseModel):
-    coins_multiplier: PositiveInt
+    coins_multiplier: PositiveFloat
     resets: NonNegativeInt
 
 class MultipliersOut(BaseModel):
@@ -44,6 +46,8 @@ class UserOut(BaseModel):
     updated_at: datetime | None     
     wallet: WalletOut
     xp: XpOut
+    utcnow: Optional[datetime] = None
+    resets: NonNegativeInt
 
     class Config:
         from_attributes = True

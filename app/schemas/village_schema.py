@@ -18,6 +18,10 @@ class VillageOut(BaseModel):
     reset_available: bool
     completion_reward: CompletionRewardOut
     buildings: list[BuildingOut]
+    utcnow: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
 
 
 class UpdateBuildingIn(BaseModel):
@@ -28,6 +32,7 @@ class UpdateBuildingOut(BaseModel):
     message: str
     cost: NonNegativeInt
     upgraded_village: bool
+    utcnow: Optional[datetime] = None
 
 
 # RESET

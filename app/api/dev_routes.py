@@ -1,7 +1,7 @@
 import os
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
-from app.helpers.time_helper import dev_add_minutes
+from app.helpers.time_helper import dev_add_seconds
 from app.core.config import settings
 
 
@@ -18,16 +18,16 @@ router = APIRouter(
     tags=["dev"],
     dependencies=[Depends(dev_only)]
 )
-@router.post("/add-minutes")
-async def add_minutes(request: Request):
+@router.post("/add-seconds")
+async def add_seconds(request: Request):
     body = await request.json()
-    minutes = body.get("minutes")
+    seconds = body.get("seconds")
 
-    if minutes is None:
+    if seconds is None:
         raise HTTPException(status_code=400, detail="minutes is required")
 
-    dev_add_minutes(int(minutes))
+    dev_add_seconds(int(seconds))
 
-    return {"ok": True, "added_minutes": int(minutes)}
+    return {"ok": True, "added_seconds": int(seconds)}
     
 

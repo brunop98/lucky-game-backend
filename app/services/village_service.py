@@ -1,6 +1,8 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session, joinedload
 
+from app.helpers.calc_helper import get_building_cost_modifier
+from app.helpers.time_helper import utcnow
 from app.models.building import Building
 from app.models.building_upgrade_history import BuildingUpgradeHistory
 from app.models.user import User
@@ -20,11 +22,11 @@ def get_building_stage_cost(db: Session, village: Villages, building: Building, 
         raise HTTPException(status_code=400, detail="Invalid building stage")
     if stage > building.building_stages:
         return None
-
+    building_cost_modifier = get_building_cost_modifier(village.id)
     if building.cost_curve == "exponential":
         cost = round(
             building.base_cost
-            * village.building_cost_modifier
+            * building_cost_modifier
             * (building.cost_multiplier ** (stage - 1))
         )
     else:
@@ -90,6 +92,8 @@ def get_actual_village(db: Session, user: User) -> VillageOut:
         },
         buildings=buildings_out,
         reset_available=reset_available(db, user),
+        utcnow=utcnow(),
+
     )
 
 
@@ -154,6 +158,8 @@ def get_next_cheaper_building_stage_cost(db: Session, user: User) -> int | None:
 
     if not candidates:
         return None
+    
+
 
     cheapest = min(
         candidates,
@@ -189,7 +195,7 @@ def check_village_completion(db: Session, user: User):
     return False
 
 
-def upgrade_building(db: Session, user: User, building_id: int) -> UpdateBuildingOut:
+def upgrade_building(db: Session, user: User, building_id: int):# -> UpdateBuildingOut:
     from app.services.wallet_service import deduce_currency, add_currency
 
     ub = (
@@ -244,4 +250,5 @@ def upgrade_building(db: Session, user: User, building_id: int) -> UpdateBuildin
         "building_current_stage": ub.current_stage,
         "upgraded_village": upgraded_village,
         "need_reset": need_reset,
+        "utcnow": utcnow(),
     }

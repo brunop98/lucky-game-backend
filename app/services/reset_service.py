@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 
-from app.config.game_consts import RESETS_COINS_MULTIPLIER_GROWTH
 from app.models.user import User
 from app.models.user_building import UserBuilding
 from app.models.villages import Villages
@@ -37,7 +36,8 @@ def do_reset(db: Session, user: User):
 
 def get_reset_coins_multiplier(db: Session, user: User):
     reset_count = user.resets
-    return 1 + (reset_count * RESETS_COINS_MULTIPLIER_GROWTH)
+    return (reset_count + 1) ** 0.4
+
 
 
 def get_reset_data(db: Session, user: User):

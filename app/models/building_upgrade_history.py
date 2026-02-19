@@ -11,7 +11,7 @@ class BuildingUpgradeHistory(Base):
     __tablename__ = "building_upgrade_history"
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     village_id = Column(Integer, ForeignKey("villages.id")) 
     building_id = Column(Integer, ForeignKey("buildings.id"))
     new_building_stage = Column(Integer)

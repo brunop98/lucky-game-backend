@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core.deps import get_db
 from app.core.auth import get_current_user
+from app.helpers.time_helper import utcnow
 from app.models.user import User
 from app.schemas.user_schema import BoostDataOut, EnergyDataOut, MultipliersOut, UserOut
 from app.services.boost_service import get_active_boosts
@@ -29,8 +30,11 @@ def get_user(
         "wallet": {
             "coins": current_user.wallet.coins,
             "gems": current_user.wallet.gems,
+            "energy": current_user.wallet.energy,
         },
         "xp": xp_data,
+        "utcnow": utcnow(),
+        "resets": current_user.resets
     }
 
 

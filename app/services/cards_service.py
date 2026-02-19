@@ -20,6 +20,7 @@ from app.models.user import User
 from app.models.user_building import UserBuilding
 from app.services.boost_service import trigger_boost
 from app.services.items_service import add_item, user_has_item
+from app.services.reset_service import reset_available
 from app.services.wallet_service import deduce_currency, add_currency, get_energy_data
 
 
@@ -168,6 +169,9 @@ def create_or_get_game(
     - goal_card != None → jogo de ITEM
     - goal_card == None → jogo de JACKPOT
     """
+    if reset_available(db, user):
+        raise HTTPException(400, "Reset available")
+
     energy_data = get_energy_data(db, user)
     if user.wallet.energy < 1:
 
@@ -226,6 +230,8 @@ def draw_card_weighted(
     user: User,
     game_uuid: UUID,
 ):
+    if reset_available(db, user):
+        raise HTTPException(400, "Reset available")
     card_hash = db.query(CardHash).filter(CardHash.id == game_uuid).first()
 
     if not card_hash:

@@ -4,9 +4,11 @@ from typing import Literal
 from sqlalchemy.orm import Session
 
 from app.config.game_consts import WALLET_MAX_ENERGY_COUNT, WALLET_MAX_ENERGY_SECONDS
+from app.helpers.calc_helper import get_building_cost_modifier
 from app.helpers.time_helper import utcnow
 from app.models import wallet_transaction
 from app.models.user import User
+from app.models.villages import Villages
 from app.models.wallet import Wallet
 from app.models.wallet_transaction import WalletTransaction
 from app.services.boost_service import get_active_boost_multiplier
@@ -15,16 +17,35 @@ from app.services.village_service import get_next_cheaper_building_stage_cost
 
 
 def _get_coins_from_reward_slug(
-    db: Session, user: User, reward_slug: Literal["coins_low", "coins_high", "coins_jackpot"]
+    db: Session,
+    user: User,
+    reward_slug: Literal["coins_low", "coins_high", "coins_jackpot"],
 ) -> int:
-    cheapest_building_stage_cost = get_next_cheaper_building_stage_cost(db, user)
+
+    cheapest_cost = get_next_cheaper_building_stage_cost(db, user)
+
+    if not cheapest_cost:
+        return 0
+
+    village = db.query(Villages).get(user.actual_village)
+
+    building_cost_modifier = get_building_cost_modifier(village.id)
+
+    raw_cost_without_modifier = round(
+        cheapest_cost / building_cost_modifier
+    )
+
+    base_earn = raw_cost_without_modifier * 0.6
 
     if "low" in reward_slug:
-        return cheapest_building_stage_cost * 0.04
+        return int(base_earn * 0.3)
     elif "high" in reward_slug:
-        return cheapest_building_stage_cost * 0.12
+        return int(base_earn * 0.5)
     elif "jackpot" in reward_slug:
-        return cheapest_building_stage_cost * 0.4
+        return int(base_earn * 0.9)
+
+    return 0
+
 
 
 def _get_energy_from_reward_slug(
