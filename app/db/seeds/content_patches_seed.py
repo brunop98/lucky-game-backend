@@ -1,5 +1,5 @@
 from app.core.database import SessionLocal
-from app.models.content_patches import ContentPatch
+from app.db.models.content_patches import ContentPatch
 
 
 def seed_patches(db):

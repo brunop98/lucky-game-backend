@@ -1,5 +1,5 @@
 from app.core.database import SessionLocal
-from app.models.item import Item
+from app.db.models.item import Item
 
 
 def seed_items(db):
@@ -31,9 +31,7 @@ def seed_items(db):
                 model_url="https://example.com/item3.obj",
                 name="Item 3",
                 rarity=0.25,
-            )
-
-            ,
+            ),
             Item(
                 id=4,
                 slug="itemVillage1",
@@ -73,10 +71,8 @@ def seed_items(db):
                 model_url="https://example.com/item3.obj",
                 name="Item 3",
                 rarity=0.25,
-            )
+            ),
         ]
-
-        
 
         db.bulk_save_objects(items)
         db.flush()

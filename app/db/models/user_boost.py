@@ -1,9 +1,8 @@
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
 
+from app.db.models.base import Base
 from app.helpers.time_helper import utcnow
-from app.models.base import Base
 
 
 class UserBoost(Base):
@@ -27,7 +26,4 @@ class UserBoost(Base):
 
     __table_args__ = ({"sqlite_autoincrement": True},)
 
-
     user = relationship("User", back_populates="user_boost")
-    
-

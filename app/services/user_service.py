@@ -1,9 +1,8 @@
 from sqlalchemy.orm import Session
 
-from app.models.user import User
-from app.models.wallet import Wallet
+from app.db.models.user import User
+from app.db.models.wallet import Wallet
 from app.services.village_service import next_village
-
 
 
 def get_or_create_user(
@@ -34,16 +33,17 @@ def get_or_create_user(
 
         wallet = Wallet(user_id=user.id)
         db.add(wallet)
-        
+
         user.wallet = wallet
         db.flush()
 
-        next_village(db,user=user)
+        next_village(db, user=user)
 
     else:
         wallet = db.query(Wallet).filter(Wallet.user_id == user.id).first()
 
     return user, wallet
 
-def delete_current_user (db: Session, user: User):
+
+def delete_current_user(db: Session, user: User):
     db.delete(user)

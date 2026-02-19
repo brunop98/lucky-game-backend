@@ -5,10 +5,10 @@ from fastapi import FastAPI
 from app.api.router import api_router
 from app.core.database import engine  # ou onde o engine está hoje
 from app.core.version_middleware import VersionMiddleware
+from app.db.models.base import Base
 from app.helpers.time_helper import dev_reset_extra_seconds
-from app.models.base import Base
-import app.models
-from app.seeds.run import run_seeds_if_enabled
+from app.db.seeds.run import run_seeds_if_enabled
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -22,10 +22,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(
-    title="Lucky Game Backend",
-    lifespan=lifespan
-)
+app = FastAPI(title="Lucky Game Backend", lifespan=lifespan)
 
 app.add_middleware(VersionMiddleware)
 app.include_router(api_router)

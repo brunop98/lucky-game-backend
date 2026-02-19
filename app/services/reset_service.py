@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 
-from app.models.user import User
-from app.models.user_building import UserBuilding
-from app.models.villages import Villages
+from app.db.models.user import User
+from app.db.models.user_building import UserBuilding
+from app.db.models.villages import Villages
 from app.services.village_service import check_village_completion, get_next_village, next_village
 
 
@@ -37,7 +37,6 @@ def do_reset(db: Session, user: User):
 def get_reset_coins_multiplier(db: Session, user: User):
     reset_count = user.resets
     return (reset_count + 1) ** 0.4
-
 
 
 def get_reset_data(db: Session, user: User):

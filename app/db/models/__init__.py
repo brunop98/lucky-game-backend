@@ -5,10 +5,12 @@ from .purchase import Purchase
 from .user import User
 from .villages import Villages
 from .wallet import Wallet
+from .event import Event
 
 from .wallet_transaction import WalletTransaction
 from .card_hash import CardHash
 from .user_building import UserBuilding
 from .user_item import UserItem
+from .user_event import UserEvent
 
 

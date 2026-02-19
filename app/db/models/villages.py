@@ -1,8 +1,8 @@
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
+from app.db.models.base import Base
 from app.helpers.time_helper import utcnow
-from app.models.base import Base
 
 
 class Villages(Base):

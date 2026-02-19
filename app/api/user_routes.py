@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.deps import get_db
 from app.core.auth import get_current_user
+from app.core.deps import get_db
+from app.db.models.user import User
 from app.helpers.time_helper import utcnow
-from app.models.user import User
-from app.schemas.user_schema import BoostDataOut, EnergyDataOut, MultipliersOut, UserOut
+from app.schemas.user_schema import EnergyDataOut, MultipliersOut, UserOut
 from app.services.boost_service import get_active_boosts
 from app.services.reset_service import get_reset_data
 from app.services.user_service import delete_current_user
@@ -34,7 +34,7 @@ def get_user(
         },
         "xp": xp_data,
         "utcnow": utcnow(),
-        "resets": current_user.resets
+        "resets": current_user.resets,
     }
 
 
@@ -64,10 +64,9 @@ def get_multipliers(
         db.rollback()
         raise
 
+
 @router.delete("")
-def delete_user(
-    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
-):
+def delete_user(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     try:
         delete_current_user(db, current_user)
         db.commit()

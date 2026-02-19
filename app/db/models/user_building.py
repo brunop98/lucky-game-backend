@@ -1,8 +1,8 @@
 from sqlalchemy import Column, DateTime, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
+from app.db.models.base import Base
 from app.helpers.time_helper import utcnow
-from app.models.base import Base
 
 
 class UserBuilding(Base):

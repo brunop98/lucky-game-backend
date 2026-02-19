@@ -1,10 +1,8 @@
-from locale import currency
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-
+from app.db.models.base import Base
 from app.helpers.time_helper import utcnow
-from app.models.base import Base
 
 
 class WalletTransaction(Base):
@@ -22,7 +20,7 @@ class WalletTransaction(Base):
     created_at = Column(DateTime(timezone=True), default=utcnow)
     updated_at = Column(DateTime(timezone=True), onupdate=utcnow)
 
-    user = relationship("User", back_populates="wallet_transactions") 
+    user = relationship("User", back_populates="wallet_transactions")
 
     __table_args__ = (
         # garante unicidade por provider

@@ -1,12 +1,9 @@
-from uuid import UUID
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.models.item import Item
-from app.models.user import User
-
-
-from app.models.user_item import UserItem
+from app.db.models.item import Item
+from app.db.models.user import User
+from app.db.models.user_item import UserItem
 
 
 def user_has_item(db: Session, user: User, item: Item | str) -> bool:
@@ -34,7 +31,6 @@ def add_item(
         raise HTTPException(400, "User already has item")
     user_item = UserItem(user_id=user.id, item_id=item.id, stack_size=stack_size)
     db.add(user_item)
-    
 
     return {
         "reward_data": {

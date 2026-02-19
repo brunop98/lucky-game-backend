@@ -1,19 +1,20 @@
+import uuid
+
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
     Column,
-    Float,
-    Integer,
-    ForeignKey,
     DateTime,
+    Float,
+    ForeignKey,
+    Integer,
     String,
 )
-from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+
+from app.db.models.base import Base
 from app.helpers.time_helper import utcnow
-from app.models.base import Base
-import uuid
 
 
 class CardHash(Base):
@@ -22,8 +23,6 @@ class CardHash(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
-    
-   
     reward_probability = Column(Float, nullable=False)
     reward_focus = Column(String, nullable=False, index=True)
 
@@ -40,7 +39,6 @@ class CardHash(Base):
     # relations
     user = relationship("User", back_populates="card_hash")
     item = relationship("Item", back_populates="card_hash")
-
 
     __table_args__ = (
         CheckConstraint(

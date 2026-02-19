@@ -1,18 +1,8 @@
-from pyexpat import model
-from sqlalchemy import (
-    Boolean,
-    CheckConstraint,
-    Column,
-    Float,
-    Integer,
-    ForeignKey,
-    DateTime,
-    String,
-)
-from sqlalchemy.sql import func
+from sqlalchemy import Boolean, CheckConstraint, Column, DateTime, Float, Integer, String
 from sqlalchemy.orm import relationship
+
+from app.db.models.base import Base
 from app.helpers.time_helper import utcnow
-from app.models.base import Base
 
 
 class Item(Base):
@@ -22,11 +12,9 @@ class Item(Base):
 
     slug = Column(String, nullable=False, unique=True)
     image_url = Column(String, nullable=False)
-    model_url = Column(
-        String, nullable=False
-    )  
+    model_url = Column(String, nullable=False)
     name = Column(String, nullable=False)
-    description = Column(String, nullable=True) 
+    description = Column(String, nullable=True)
     rarity = Column(Float, nullable=False)
 
     drawn_available = Column(Boolean, nullable=False, default=True)

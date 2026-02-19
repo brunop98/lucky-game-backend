@@ -1,10 +1,8 @@
-from locale import currency
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
-
+from app.db.models.base import Base
 from app.helpers.time_helper import utcnow
-from app.models.base import Base
 
 
 class BuildingUpgradeHistory(Base):
@@ -12,7 +10,7 @@ class BuildingUpgradeHistory(Base):
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    village_id = Column(Integer, ForeignKey("villages.id")) 
+    village_id = Column(Integer, ForeignKey("villages.id"))
     building_id = Column(Integer, ForeignKey("buildings.id"))
     new_building_stage = Column(Integer)
 
@@ -20,10 +18,9 @@ class BuildingUpgradeHistory(Base):
     created_at = Column(DateTime(timezone=True), default=utcnow)
     updated_at = Column(DateTime(timezone=True), onupdate=utcnow)
 
-    user = relationship("User", back_populates="building_upgrade_history") 
+    user = relationship("User", back_populates="building_upgrade_history")
     village = relationship("Villages", back_populates="building_upgrade_history")
-    building = relationship("Building", back_populates="building_upgrade_history") 
-
+    building = relationship("Building", back_populates="building_upgrade_history")
 
     __table_args__ = (
         # garante unicidade por provider

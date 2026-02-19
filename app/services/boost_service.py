@@ -8,8 +8,8 @@ from app.config.game_consts import (
     BOOST_MAX_DURATION,
     BOOST_XP_MULTIPLIERS,
 )
-from app.models.user import User
-from app.models.user_boost import UserBoost
+from app.db.models.user import User
+from app.db.models.user_boost import UserBoost
 
 
 def _get_xp_data(reward_slug: Literal["boost_low", "boost_high", "boost_jackpot"]):

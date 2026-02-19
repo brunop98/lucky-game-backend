@@ -1,18 +1,17 @@
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.orm import Session, joinedload
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
+from sqlalchemy.orm import Session, joinedload
 
 from app.core.deps import get_db
-from app.core.security import SECRET_KEY, ALGORITHM
-from app.models.user import User
+from app.core.security import ALGORITHM, SECRET_KEY
+from app.db.models.user import User
 
 security = HTTPBearer()
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db)
+    credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)
 ):
     token = credentials.credentials
 
@@ -24,12 +23,7 @@ def get_current_user(
     except JWTError:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
-    user = (
-        db.query(User)
-        .options(joinedload(User.wallet))
-        .filter(User.id == user_id)
-        .first()
-    )
+    user = db.query(User).options(joinedload(User.wallet)).filter(User.id == user_id).first()
 
     if not user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED)

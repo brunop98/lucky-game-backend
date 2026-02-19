@@ -1,14 +1,14 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session, joinedload
 
+from app.db.models.building import Building
+from app.db.models.building_upgrade_history import BuildingUpgradeHistory
+from app.db.models.user import User
+from app.db.models.user_building import UserBuilding
+from app.db.models.villages import Villages
 from app.helpers.calc_helper import get_building_cost_modifier
 from app.helpers.time_helper import utcnow
-from app.models.building import Building
-from app.models.building_upgrade_history import BuildingUpgradeHistory
-from app.models.user import User
-from app.models.user_building import UserBuilding
-from app.models.villages import Villages
-from app.schemas.village_schema import BuildingOut, UpdateBuildingOut, VillageOut
+from app.schemas.village_schema import BuildingOut, VillageOut
 from app.services.items_service import add_item
 from app.services.xp_service import calculate_building_stage_xp
 
@@ -25,9 +25,7 @@ def get_building_stage_cost(db: Session, village: Villages, building: Building, 
     building_cost_modifier = get_building_cost_modifier(village.id)
     if building.cost_curve == "exponential":
         cost = round(
-            building.base_cost
-            * building_cost_modifier
-            * (building.cost_multiplier ** (stage - 1))
+            building.base_cost * building_cost_modifier * (building.cost_multiplier ** (stage - 1))
         )
     else:
         raise HTTPException(status_code=400, detail="Unsupported cost curve")
@@ -93,7 +91,6 @@ def get_actual_village(db: Session, user: User) -> VillageOut:
         buildings=buildings_out,
         reset_available=reset_available(db, user),
         utcnow=utcnow(),
-
     )
 
 
@@ -158,8 +155,6 @@ def get_next_cheaper_building_stage_cost(db: Session, user: User) -> int | None:
 
     if not candidates:
         return None
-    
-
 
     cheapest = min(
         candidates,
@@ -195,8 +190,8 @@ def check_village_completion(db: Session, user: User):
     return False
 
 
-def upgrade_building(db: Session, user: User, building_id: int):# -> UpdateBuildingOut:
-    from app.services.wallet_service import deduce_currency, add_currency
+def upgrade_building(db: Session, user: User, building_id: int):  # -> UpdateBuildingOut:
+    from app.services.wallet_service import add_currency, deduce_currency
 
     ub = (
         db.query(UserBuilding)

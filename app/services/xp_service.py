@@ -3,7 +3,7 @@ import math
 from sqlalchemy.orm import Session
 
 from app.config.game_consts import XP_BASE, XP_BUILDINGS_STAGE_GROWTH, XP_GROWTH
-from app.models.user import User
+from app.db.models.user import User
 
 
 def _xp_required_for_level(level: int) -> int:

@@ -4,13 +4,12 @@ from typing import Literal
 from sqlalchemy.orm import Session
 
 from app.config.game_consts import WALLET_MAX_ENERGY_COUNT, WALLET_MAX_ENERGY_SECONDS
+from app.db.models.user import User
+from app.db.models.villages import Villages
+from app.db.models.wallet import Wallet
+from app.db.models.wallet_transaction import WalletTransaction
 from app.helpers.calc_helper import get_building_cost_modifier
 from app.helpers.time_helper import utcnow
-from app.models import wallet_transaction
-from app.models.user import User
-from app.models.villages import Villages
-from app.models.wallet import Wallet
-from app.models.wallet_transaction import WalletTransaction
 from app.services.boost_service import get_active_boost_multiplier
 from app.services.reset_service import get_reset_coins_multiplier
 from app.services.village_service import get_next_cheaper_building_stage_cost
@@ -31,9 +30,7 @@ def _get_coins_from_reward_slug(
 
     building_cost_modifier = get_building_cost_modifier(village.id)
 
-    raw_cost_without_modifier = round(
-        cheapest_cost / building_cost_modifier
-    )
+    raw_cost_without_modifier = round(cheapest_cost / building_cost_modifier)
 
     base_earn = raw_cost_without_modifier * 0.6
 
@@ -45,7 +42,6 @@ def _get_coins_from_reward_slug(
         return int(base_earn * 0.9)
 
     return 0
-
 
 
 def _get_energy_from_reward_slug(

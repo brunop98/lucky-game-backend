@@ -4,7 +4,6 @@ from typing import Literal
 from uuid import UUID, uuid4
 
 from fastapi import HTTPException
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from app.config.game_consts import (
@@ -13,15 +12,15 @@ from app.config.game_consts import (
     CARDS_BASE_PROBABILITIES,
     CARDS_MIN_PROBABILITIES,
 )
-from app.models.building import Building
-from app.models.card_hash import CardHash
-from app.models.item import Item
-from app.models.user import User
-from app.models.user_building import UserBuilding
+from app.db.models.building import Building
+from app.db.models.card_hash import CardHash
+from app.db.models.item import Item
+from app.db.models.user import User
+from app.db.models.user_building import UserBuilding
 from app.services.boost_service import trigger_boost
 from app.services.items_service import add_item, user_has_item
 from app.services.reset_service import reset_available
-from app.services.wallet_service import deduce_currency, add_currency, get_energy_data
+from app.services.wallet_service import add_currency, deduce_currency, get_energy_data
 
 
 def sort_card(db: Session, user: User, game_data, card_hash):

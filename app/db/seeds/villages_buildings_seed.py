@@ -1,6 +1,6 @@
 from app.core.database import SessionLocal
-from app.models.building import Building
-from app.models.villages import Villages
+from app.db.models.building import Building
+from app.db.models.villages import Villages
 
 
 def seed_villages_and_buildings(db):
@@ -110,7 +110,6 @@ def seed_villages_and_buildings(db):
                 cost_multiplier=1.35,
                 base_completion_reward_xp=16,
             ),  # âncora
-
             # =========================
             # VILA 2 — MERCANTIL
             # =========================
@@ -150,7 +149,6 @@ def seed_villages_and_buildings(db):
                 cost_multiplier=1.40,
                 base_completion_reward_xp=28,
             ),  # âncora
-
             # =========================
             # VILA 3 — REAL
             # =========================
@@ -190,7 +188,6 @@ def seed_villages_and_buildings(db):
                 cost_multiplier=1.45,
                 base_completion_reward_xp=46,
             ),  # âncora
-
             # =========================
             # VILA 4 — IMPERIAL
             # =========================
@@ -230,7 +227,6 @@ def seed_villages_and_buildings(db):
                 cost_multiplier=1.48,
                 base_completion_reward_xp=68,
             ),  # âncora
-
             # =========================
             # VILA 5 — LENDÁRIA
             # =========================

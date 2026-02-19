@@ -1,8 +1,8 @@
 from sqlalchemy import Column, DateTime, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
+from app.db.models.base import Base
 from app.helpers.time_helper import utcnow
-from app.models.base import Base
 
 
 class Wallet(Base):
@@ -23,7 +23,8 @@ class Wallet(Base):
 
     user = relationship("User", back_populates="wallet")
 
-#TODO reset multiem jackpot ou direto no addcurr
+
+# TODO reset multiem jackpot ou direto no addcurr
 
 # TODO RECOMPENSA DE AD
 # o que eu recebo

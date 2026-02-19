@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.models.content_patches import ContentPatch
+from app.db.models.content_patches import ContentPatch
 
 
 def get_active_patch(db: Session) -> dict | None:
