@@ -23,10 +23,11 @@ class CardHash(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
-    reward_probability = Column(Float, nullable=False)
     reward_focus = Column(String, nullable=False, index=True)
+    reward_probability = Column(Float, nullable=False)
+    secondary_reward_probability = Column(Float, nullable=True)
 
-    item_slug = Column(String, ForeignKey("items.slug"), nullable=True)
+    event_slug = Column(String, ForeignKey("events.slug"), nullable=True)
 
     # estado
     used = Column(Boolean, nullable=False, default=False)
@@ -38,10 +39,11 @@ class CardHash(Base):
 
     # relations
     user = relationship("User", back_populates="card_hash")
-    item = relationship("Item", back_populates="card_hash")
+    event = relationship("Event", back_populates="card_hash")
+
 
     __table_args__ = (
         CheckConstraint(
-            "reward_focus IN ('rare_item', 'coins_jackpot')", name="ck_card_hashes_reward_focus"
+            "reward_focus IN ('event_item', 'coins_jackpot')", name="ck_card_hashes_reward_focus"
         ),
     )

@@ -26,7 +26,6 @@ class User(Base):
     resets = Column(Integer, nullable=False, default=0)
 
     # cards
-    rare_item_miss_count = Column(Integer, nullable=False, default=0)
     last_jackpot_at = Column(DateTime(timezone=True), nullable=True)
 
     # timestamps

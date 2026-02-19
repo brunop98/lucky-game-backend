@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, CheckConstraint, Column, DateTime, Float, Integer, String
+from sqlalchemy import Boolean, CheckConstraint, Column, DateTime, Enum, Float, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.db.models.base import Base
@@ -16,6 +16,7 @@ class Item(Base):
     name = Column(String, nullable=False)
     description = Column(String, nullable=True)
     rarity = Column(Float, nullable=False)
+    type = Column(Enum("hat", "outfit", name="item_type"), nullable=False)
 
     drawn_available = Column(Boolean, nullable=False, default=True)
 
@@ -23,6 +24,6 @@ class Item(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=utcnow)
 
     user_item = relationship("UserItem", back_populates="item")
-    card_hash = relationship("CardHash", back_populates="item")
+    
 
     __table_args__ = (CheckConstraint("rarity > 0", name="ck_cards_rarity_positive"),)

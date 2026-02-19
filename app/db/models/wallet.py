@@ -13,6 +13,7 @@ class Wallet(Base):
     xp = Column(Integer, default=0)
     coins = Column(Integer, default=0)
     gems = Column(Integer, default=0)
+    tickets = Column(Integer, default=0)
     energy = Column(Integer, default=0)
 
     last_energy_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)

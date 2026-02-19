@@ -1,4 +1,14 @@
-from sqlalchemy import CheckConstraint, Column, DateTime, Enum, Integer, String, UniqueConstraint
+from sqlalchemy import (
+    CheckConstraint,
+    Column,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
+    String,
+    UniqueConstraint,
+    desc,
+)
 from sqlalchemy.orm import relationship
 
 from app.db.models.base import Base
@@ -9,7 +19,10 @@ class Event(Base):
     __tablename__ = "events"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False, unique=True)
+    slug = Column(String, nullable=False, unique=True)
+
+    name = Column(String, nullable=False)
+    description = Column(String, nullable=True)
 
     type = Column(Enum("seasonal", "progression", name="event_type"), nullable=False)
     spin_currency = Column(
@@ -17,6 +30,9 @@ class Event(Base):
         nullable=False,
     )
     cost_per_spin = Column(Integer, nullable=False, default=10)
+
+    target_item_slug = Column(String, ForeignKey("items.slug"), nullable=False)
+    secondary_target_item_slug = Column(String, ForeignKey("items.slug"), nullable=True)
 
     # progression fields
     progression_line_id = Column(Integer, nullable=True)
@@ -66,6 +82,7 @@ class Event(Base):
             """,
             name="ck_event_type_exclusive",
         ),
+        {"sqlite_autoincrement": True},
     )
 
     # timestamps
@@ -73,3 +90,7 @@ class Event(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=utcnow)
 
     user_event = relationship("UserEvent", back_populates="event")
+    card_hash = relationship("CardHash", back_populates="event")
+
+    target_item = relationship("Item", foreign_keys=[target_item_slug])
+    secondary_target_item = relationship("Item", foreign_keys=[secondary_target_item_slug])
